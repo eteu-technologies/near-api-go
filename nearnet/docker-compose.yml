@@ -1,0 +1,15 @@
+version: '2.4'
+
+services:
+  nearup:
+    #image: nearprotocol/nearup:latest
+    build: .
+    command: 'run localnet --verbose --binary-path /neard-local'
+    init: true
+    volumes:
+      - data:/root/.near
+    ports:
+      - 127.0.0.1:3030:3030
+
+volumes:
+  data:
