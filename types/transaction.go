@@ -5,6 +5,9 @@ import (
 	"math/big"
 
 	"github.com/near/borsh-go"
+
+	. "github.com/eteu-technologies/near-api-go/types/action"
+	. "github.com/eteu-technologies/near-api-go/types/hash"
 )
 
 // NOTE: jsonrpc params -> something in that

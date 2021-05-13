@@ -13,6 +13,8 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/eteu-technologies/near-api-go/types"
+	"github.com/eteu-technologies/near-api-go/types/action"
+	"github.com/eteu-technologies/near-api-go/types/hash"
 	nearrpc "github.com/eteu-technologies/near-rpc-go"
 	"github.com/eteu-technologies/near-rpc-go/key"
 	"github.com/eteu-technologies/near-rpc-go/shim"
@@ -164,9 +166,9 @@ func main() {
 		PublicKey:  types.PublicKeyFromED25519Key(pubKey),
 		Nonce:      nonce + 1,
 		ReceiverID: targetAccID,
-		BlockHash:  types.MustValidCryptoHash(types.NewCryptoHashFromBase58(blockHash)),
-		Actions: []types.Action{
-			types.NewActionTransfer(bal),
+		BlockHash:  hash.MustValidCryptoHash(hash.NewCryptoHashFromBase58(blockHash)),
+		Actions: []action.Action{
+			action.NewActionTransfer(bal),
 		},
 	}
 
@@ -200,8 +202,9 @@ func main() {
 	}
 
 	type Status struct {
-		SuccessValue     string `json:"SuccessValue"`
-		SuccessReceiptID string `json:"SuccessReceiptId"`
+		SuccessValue     string          `json:"SuccessValue"`
+		SuccessReceiptID string          `json:"SuccessReceiptId"`
+		Failure          json.RawMessage `json:"Failure"` // TODO
 	}
 
 	type Outcome struct {
