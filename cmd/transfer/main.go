@@ -16,7 +16,6 @@ import (
 	"github.com/eteu-technologies/near-rpc-go/key"
 	"github.com/eteu-technologies/near-rpc-go/shim"
 	"github.com/mr-tron/base58"
-	"lukechampine.com/uint128"
 
 	"github.com/eteu-technologies/near-api-go/types"
 	"github.com/eteu-technologies/near-api-go/types/action"
@@ -30,7 +29,7 @@ var (
 	targetAccID = "node1"
 	// accID       = "mikroskeem.testnet"
 	// secretKey   = os.Getenv("NEAR_PRIV_KEY")
-	// targetAccID = "meeksorkim.testnet"
+	// targetAccID = "mikroskeem2.testnet"
 )
 
 func mustKey(key *key.PublicKey, err error) *key.PublicKey {
@@ -167,7 +166,7 @@ func main() {
 		ReceiverID: targetAccID,
 		BlockHash:  blockHash,
 		Actions: []action.Action{
-			action.NewTransfer(uint128.From64(10000000000000000000)),
+			action.NewTransfer(types.NEARToYocto(1)),
 		},
 	}
 
@@ -207,12 +206,12 @@ func main() {
 	}
 
 	type Outcome struct {
-		Logs        []string      `json:"logs"`        // TODO: verify type
-		ReceiptIDs  []interface{} `json:"receipt_ids"` // TODO: unknown type
-		GasBurnt    uint64        `json:"gas_burnt"`
-		TokensBurnt string        `json:"tokens_burnt"` // TODO: u128
-		ExecutorID  string        `json:"executor_id"`  // TODO: account id
-		Status      Status        `json:"status"`
+		Logs        []string        `json:"logs"`        // TODO: verify type
+		ReceiptIDs  []interface{}   `json:"receipt_ids"` // TODO: unknown type
+		GasBurnt    types.Gas       `json:"gas_burnt"`
+		TokensBurnt string          `json:"tokens_burnt"` // TODO: u128
+		ExecutorID  types.AccountID `json:"executor_id"`
+		Status      Status          `json:"status"`
 	}
 
 	type Receipt struct {
@@ -225,13 +224,13 @@ func main() {
 	var txnRes struct {
 		Status      Status `json:"status"`
 		Transaction struct {
-			SignerID   string                                             `json:"signer_id"`
+			SignerID   types.AccountID                                    `json:"signer_id"`
 			PublicKey  string                                             `json:"public_key"`
-			Nonce      uint64                                             `json:"nonce"`
-			ReceiverID string                                             `json:"receiver_id"`
+			Nonce      types.Nonce                                        `json:"nonce"`
+			ReceiverID types.AccountID                                    `json:"receiver_id"`
 			Actions    []json.RawMessage/*types.Action*/ `json:"actions"` // TODO: types.Action
 			Signature  string                                             `json:"signature"`
-			Hash       string                                             `json:"hash"`
+			Hash       hash.CryptoHash                                    `json:"hash"`
 		} `json:"transaction"`
 		TransactionOutcome Receipt   `json:"transaction_outcome"`
 		ReceiptsOutcome    []Receipt `json:"receipts_outcome"`
