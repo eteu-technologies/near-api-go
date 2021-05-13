@@ -106,7 +106,7 @@ func (a *Action) UnmarshalJSON(b []byte) error {
 	}
 
 	if l := len(obj); l > 1 {
-		return fmt.Errorf("action object contains invalid amout of keys (expected: 1, got: %d)", l)
+		return fmt.Errorf("action object contains invalid amount of keys (expected: 1, got: %d)", l)
 	}
 
 	var firstKey string
