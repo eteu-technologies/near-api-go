@@ -13,13 +13,14 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	borsh "github.com/eteu-technologies/borsh-go"
 	nearrpc "github.com/eteu-technologies/near-rpc-go"
-	"github.com/eteu-technologies/near-rpc-go/key"
+	oldkey "github.com/eteu-technologies/near-rpc-go/key"
 	"github.com/eteu-technologies/near-rpc-go/shim"
 	"github.com/mr-tron/base58"
 
 	"github.com/eteu-technologies/near-api-go/types"
 	"github.com/eteu-technologies/near-api-go/types/action"
 	"github.com/eteu-technologies/near-api-go/types/hash"
+	"github.com/eteu-technologies/near-api-go/types/key"
 	"github.com/eteu-technologies/near-api-go/types/transaction"
 )
 
@@ -31,13 +32,6 @@ var (
 	secretKey   = os.Getenv("NEAR_PRIV_KEY")
 	targetAccID = "mikroskeem2.testnet"
 )
-
-func mustKey(key *key.PublicKey, err error) *key.PublicKey {
-	if err != nil {
-		panic(err)
-	}
-	return key
-}
 
 func loadPrivKey(key string) (ed25519.PrivateKey, ed25519.PublicKey, error) {
 	split := strings.SplitN(key, ":", 2)
@@ -62,7 +56,7 @@ func main() {
 		log.Fatal("failed to load private key: ", err)
 	}
 
-	thePubK := key.WrapED25519PubKey(pubKey)
+	thePubK := oldkey.WrapED25519PubKey(pubKey)
 
 	//addr := "http://127.0.0.1:3030"
 	addr := "https://rpc.testnet.near.org"
@@ -101,8 +95,8 @@ func main() {
 
 	// ValidatorStake is based on ValidatorStakeV1 struct in nearcore
 	type ValidatorStake struct {
-		AccountID types.AccountID       `json:"account_id"`
-		PublicKey transaction.PublicKey `json:"public_key"`
+		AccountID types.AccountID `json:"account_id"`
+		PublicKey key.PublicKey   `json:"public_key"`
 	}
 
 	var blockDetails struct {
@@ -174,7 +168,7 @@ func main() {
 	// Create a transaction
 	txn := transaction.Transaction{
 		SignerID:   accID,
-		PublicKey:  transaction.PublicKeyFromED25519Key(pubKey),
+		PublicKey:  key.WrapED25519(pubKey),
 		Nonce:      nonce + 1,
 		ReceiverID: targetAccID,
 		BlockHash:  blockHash,
@@ -235,7 +229,7 @@ func main() {
 	type MerklePath []MerklePathItem
 
 	type ExecutionOutcomeWithIdView struct {
-		Proof     []MerklePath         `json:"proof"`
+		Proof     MerklePath           `json:"proof"`
 		BlockHash hash.CryptoHash      `json:"block_hash"`
 		ID        hash.CryptoHash      `json:"id"`
 		Outcome   ExecutionOutcomeView `json:"outcome"`
