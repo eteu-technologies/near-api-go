@@ -21,19 +21,19 @@ type Action struct {
 }
 
 const (
-	OrdCreateAccount uint8 = iota
-	OrdDeployContract
-	OrdFunctionCall
-	OrdTransfer
-	OrdStake
-	OrdAddKey
-	OrdDeleteKey
-	OrdDeleteAccount
+	ordCreateAccount uint8 = iota
+	ordDeployContract
+	ordFunctionCall
+	ordTransfer
+	ordStake
+	ordAddKey
+	ordDeleteKey
+	ordDeleteAccount
 )
 
 func (a *Action) PrepaidGas() types.Gas {
 	switch uint8(a.Enum) {
-	case OrdFunctionCall:
+	case ordFunctionCall:
 		return a.FunctionCall.Gas
 	default:
 		return 0
@@ -42,9 +42,9 @@ func (a *Action) PrepaidGas() types.Gas {
 
 func (a *Action) DepositBalance() types.Balance {
 	switch uint8(a.Enum) {
-	case OrdFunctionCall:
+	case ordFunctionCall:
 		return types.Balance(a.FunctionCall.Deposit)
-	case OrdTransfer:
+	case ordTransfer:
 		return types.Balance(a.Transfer.Deposit)
 	default:
 		return types.Balance(uint128.Zero)
@@ -53,21 +53,21 @@ func (a *Action) DepositBalance() types.Balance {
 
 func (a *Action) UnderlyingValue() interface{} {
 	switch uint8(a.Enum) {
-	case OrdCreateAccount:
+	case ordCreateAccount:
 		return a.CreateAccount
-	case OrdDeployContract:
+	case ordDeployContract:
 		return a.DeployContract
-	case OrdFunctionCall:
+	case ordFunctionCall:
 		return a.FunctionCall
-	case OrdTransfer:
+	case ordTransfer:
 		return a.Transfer
-	case OrdStake:
+	case ordStake:
 		return a.Stake
-	case OrdAddKey:
+	case ordAddKey:
 		return a.AddKey
-	case OrdDeleteKey:
+	case ordDeleteKey:
 		return a.DeleteKey
-	case OrdDeleteAccount:
+	case ordDeleteAccount:
 		return a.DeleteAccount
 	}
 
@@ -81,7 +81,7 @@ type ActionCreateAccount struct {
 // TODO
 func NewCreateAccount() Action {
 	return Action{
-		Enum:          borsh.Enum(OrdCreateAccount),
+		Enum:          borsh.Enum(ordCreateAccount),
 		CreateAccount: ActionCreateAccount{},
 	}
 }
@@ -93,7 +93,7 @@ type ActionDeployContract struct {
 // TODO
 func NewDeployContract() Action {
 	return Action{
-		Enum:           borsh.Enum(OrdDeployContract),
+		Enum:           borsh.Enum(ordDeployContract),
 		DeployContract: ActionDeployContract{},
 	}
 }
@@ -107,7 +107,7 @@ type ActionFunctionCall struct {
 
 func NewFunctionCall(methodName string, args string, gas types.Gas, deposit uint128.Uint128) Action {
 	return Action{
-		Enum: borsh.Enum(OrdFunctionCall),
+		Enum: borsh.Enum(ordFunctionCall),
 		FunctionCall: ActionFunctionCall{
 			MethodName: methodName,
 			Args:       args,
@@ -123,7 +123,7 @@ type ActionTransfer struct {
 
 func NewTransfer(deposit uint128.Uint128) Action {
 	return Action{
-		Enum: borsh.Enum(OrdTransfer),
+		Enum: borsh.Enum(ordTransfer),
 		Transfer: ActionTransfer{
 			Deposit: deposit,
 		},
@@ -137,7 +137,7 @@ type ActionStake struct {
 // TODO
 func NewStake() Action {
 	return Action{
-		Enum:  borsh.Enum(OrdStake),
+		Enum:  borsh.Enum(ordStake),
 		Stake: ActionStake{},
 	}
 }
@@ -149,7 +149,7 @@ type ActionAddKey struct {
 // TODO
 func NewAddKey() Action {
 	return Action{
-		Enum:   borsh.Enum(OrdAddKey),
+		Enum:   borsh.Enum(ordAddKey),
 		AddKey: ActionAddKey{},
 	}
 }
@@ -161,7 +161,7 @@ type ActionDeleteKey struct {
 // TODO
 func NewDeleteKey() Action {
 	return Action{
-		Enum:      borsh.Enum(OrdDeleteKey),
+		Enum:      borsh.Enum(ordDeleteKey),
 		DeleteKey: ActionDeleteKey{},
 	}
 }
@@ -173,7 +173,7 @@ type ActionDeleteAccount struct {
 // TODO
 func NewDeleteAccount() Action {
 	return Action{
-		Enum:          borsh.Enum(OrdDeleteAccount),
+		Enum:          borsh.Enum(ordDeleteAccount),
 		DeleteAccount: ActionDeleteAccount{},
 	}
 }
