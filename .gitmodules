@@ -1,0 +1,3 @@
+[submodule "near-rpc-go"]
+	path = near-rpc-go
+	url = git@github.com:eteu-technologies/near-rpc-go.git
