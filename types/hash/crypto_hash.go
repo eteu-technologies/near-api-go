@@ -9,7 +9,9 @@ import (
 	"github.com/mr-tron/base58"
 )
 
-type CryptoHash [sha256.Size]byte // SHA-256 digest
+// CryptoHash is a wrapper for SHA-256 digest byte array.
+// Note that nearcore also defines MerkleHash as an alias, but it's omitted from this project.
+type CryptoHash [sha256.Size]byte
 
 func (c *CryptoHash) UnmarshalJSON(b []byte) error {
 	var s string

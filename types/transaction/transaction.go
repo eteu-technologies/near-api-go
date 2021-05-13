@@ -2,8 +2,10 @@ package transaction
 
 import (
 	"crypto/ed25519"
+	"encoding/json"
 
 	"github.com/eteu-technologies/borsh-go"
+	"github.com/mr-tron/base58"
 
 	"github.com/eteu-technologies/near-api-go/types"
 	. "github.com/eteu-technologies/near-api-go/types/action"
@@ -91,6 +93,26 @@ func NewSignatureED25519(data []byte) Signature {
 
 // TODO: SECP256K1
 type PublicKey [33]byte
+
+func (p PublicKey) MarshalJSON() ([]byte, error) {
+	return json.Marshal(base58.Encode(p[:]))
+}
+
+func (p *PublicKey) UnmarshalJSON(b []byte) error {
+	var s string
+	if err := json.Unmarshal(b, &s); err != nil {
+		return err
+	}
+
+	dec, err := base58.Decode(s)
+	if err != nil {
+		return err
+	}
+
+	*p = PublicKey{}
+	copy(p[:], dec)
+	return nil
+}
 
 func PublicKeyFromED25519Key(key ed25519.PublicKey) PublicKey {
 	var buf [33]byte

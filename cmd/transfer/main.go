@@ -24,12 +24,12 @@ import (
 )
 
 var (
-	accID       = "node0"
-	secretKey   = "ed25519:3D4YudUQRE39Lc4JHghuB5WM8kbgDDa34mnrEP5DdTApVH81af7e2dWgNPEaiQfdJnZq1CNPp5im4Rg5b733oiMP"
-	targetAccID = "node1"
-	// accID       = "mikroskeem.testnet"
-	// secretKey   = os.Getenv("NEAR_PRIV_KEY")
-	// targetAccID = "mikroskeem2.testnet"
+	// accID       = "node0"
+	// secretKey   = "ed25519:3D4YudUQRE39Lc4JHghuB5WM8kbgDDa34mnrEP5DdTApVH81af7e2dWgNPEaiQfdJnZq1CNPp5im4Rg5b733oiMP"
+	// targetAccID = "node1"
+	accID       = "mikroskeem.testnet"
+	secretKey   = os.Getenv("NEAR_PRIV_KEY")
+	targetAccID = "mikroskeem2.testnet"
 )
 
 func mustKey(key *key.PublicKey, err error) *key.PublicKey {
@@ -64,8 +64,8 @@ func main() {
 
 	thePubK := key.WrapED25519PubKey(pubKey)
 
-	addr := "http://127.0.0.1:3030"
-	//addr := "https://rpc.testnet.near.org"
+	//addr := "http://127.0.0.1:3030"
+	addr := "https://rpc.testnet.near.org"
 
 	shim.ShimURL = addr
 
@@ -92,38 +92,51 @@ func main() {
 		log.Fatal("failed to query latest block: ", err)
 	}
 
+	type SlashedValidator struct {
+		AccountID    types.AccountID `json:"account_id"`
+		IsDoubleSign bool            `json:"is_double_sign"`
+	}
+
+	type ChallengesResult []SlashedValidator
+
+	// ValidatorStake is based on ValidatorStakeV1 struct in nearcore
+	type ValidatorStake struct {
+		AccountID types.AccountID       `json:"account_id"`
+		PublicKey transaction.PublicKey `json:"public_key"`
+	}
+
 	var blockDetails struct {
 		Author types.AccountID `json:"author"`
 		Header struct {
-			Height                uint64            `json:"height"`
-			EpochID               hash.CryptoHash   `json:"epoch_id"`
-			NextEpochID           hash.CryptoHash   `json:"next_epoch_id"`
-			Hash                  hash.CryptoHash   `json:"hash"`
-			PrevHash              hash.CryptoHash   `json:"prev_hash"`
-			PrevStateRoot         hash.CryptoHash   `json:"prev_state_root"`
-			ChunkReceiptsRoot     hash.CryptoHash   `json:"chunk_receipts_root"`
-			ChunkHeadersRoot      hash.CryptoHash   `json:"chunk_headers_root"`
-			ChunkTxRoot           hash.CryptoHash   `json:"chunk_tx_root"`
-			OutcomeRoot           hash.CryptoHash   `json:"outcome_root"`
-			ChunksIncluded        uint64            `json:"chunks_included"`
-			ChallengesRoot        string            `json:"challenges_root"`
-			Timestamp             uint64            `json:"timestamp"`         // milliseconds
-			TimestampNanosec      json.RawMessage   `json:"timestamp_nanosec"` // nanoseconds, uint128
-			RandomValue           string            `json:"random_value"`
-			ValidatorProposals    []json.RawMessage `json:"validator_proposals"` // TODO: unknown type, check rust code
-			ChunkMask             []bool            `json:"chunk_mask"`
-			GasPrice              json.RawMessage   `json:"gas_price"`         // TODO: types.Gas deserializing from string
-			RentPaid              json.RawMessage   `json:"rent_paid"`         // TODO: unknown type, check rust code
-			ValidatorReward       json.RawMessage   `json:"validator_reward"`  // TODO: unknown type, check rust code
-			TotalSupply           json.RawMessage   `json:"total_supply"`      // TODO: unknown type, check rust code
-			ChallengesResult      []json.RawMessage `json:"challenges_result"` // TODO: unknown type, check rust code
-			LastFinalBlock        hash.CryptoHash   `json:"last_final_block"`
-			LastDSFinalBlock      hash.CryptoHash   `json:"last_ds_final_block"`
-			NextBPHash            hash.CryptoHash   `json:"next_bp_hash"`
-			BlockMerkleRoot       hash.CryptoHash   `json:"block_merkle_root"`
-			Approvals             []string          `json:"approvals"` // TODO: array of nullable ed25519 signatures
-			Signature             string            `json:"signature"` // TODO: ed25519 signature
-			LatestProtocolVersion uint64            `json:"latest_protocol_version"`
+			Height                uint64           `json:"height"`
+			EpochID               hash.CryptoHash  `json:"epoch_id"`
+			NextEpochID           hash.CryptoHash  `json:"next_epoch_id"`
+			Hash                  hash.CryptoHash  `json:"hash"`
+			PrevHash              hash.CryptoHash  `json:"prev_hash"`
+			PrevStateRoot         hash.CryptoHash  `json:"prev_state_root"`
+			ChunkReceiptsRoot     hash.CryptoHash  `json:"chunk_receipts_root"`
+			ChunkHeadersRoot      hash.CryptoHash  `json:"chunk_headers_root"`
+			ChunkTxRoot           hash.CryptoHash  `json:"chunk_tx_root"`
+			OutcomeRoot           hash.CryptoHash  `json:"outcome_root"`
+			ChunksIncluded        uint64           `json:"chunks_included"`
+			ChallengesRoot        hash.CryptoHash  `json:"challenges_root"`
+			Timestamp             uint64           `json:"timestamp"`         // milliseconds
+			TimestampNanosec      string           `json:"timestamp_nanosec"` // nanoseconds, uint128
+			RandomValue           hash.CryptoHash  `json:"random_value"`
+			ValidatorProposals    []ValidatorStake `json:"validator_proposals"`
+			ChunkMask             []bool           `json:"chunk_mask"`
+			GasPrice              types.Balance    `json:"gas_price"`
+			RentPaid              types.Balance    `json:"rent_paid"`        // NOTE: deprecated - 2021-05-14
+			ValidatorReward       types.Balance    `json:"validator_reward"` // NOTE: deprecated - 2021-05-14
+			TotalSupply           types.Balance    `json:"total_supply"`
+			ChallengesResult      ChallengesResult `json:"challenges_result"`
+			LastFinalBlock        hash.CryptoHash  `json:"last_final_block"`
+			LastDSFinalBlock      hash.CryptoHash  `json:"last_ds_final_block"`
+			NextBPHash            hash.CryptoHash  `json:"next_bp_hash"`
+			BlockMerkleRoot       hash.CryptoHash  `json:"block_merkle_root"`
+			Approvals             []string         `json:"approvals"` // TODO: array of nullable ed25519 signatures
+			Signature             string           `json:"signature"` // TODO: ed25519 signature
+			LatestProtocolVersion uint64           `json:"latest_protocol_version"`
 		} `json:"header"`
 		Chunks []struct {
 			/*
@@ -166,7 +179,7 @@ func main() {
 		ReceiverID: targetAccID,
 		BlockHash:  blockHash,
 		Actions: []action.Action{
-			action.NewTransfer(types.NEARToYocto(1)),
+			action.NewTransfer(types.Balance(types.NEARToYocto(1).Div64(1000))),
 		},
 	}
 
@@ -205,35 +218,42 @@ func main() {
 		Failure          json.RawMessage `json:"Failure"` // TODO
 	}
 
-	type Outcome struct {
-		Logs        []string        `json:"logs"`        // TODO: verify type
-		ReceiptIDs  []interface{}   `json:"receipt_ids"` // TODO: unknown type
-		GasBurnt    types.Gas       `json:"gas_burnt"`
-		TokensBurnt string          `json:"tokens_burnt"` // TODO: u128
-		ExecutorID  types.AccountID `json:"executor_id"`
-		Status      Status          `json:"status"`
+	type ExecutionOutcomeView struct {
+		Logs        []string          `json:"logs"`
+		ReceiptIDs  []hash.CryptoHash `json:"receipt_ids"`
+		GasBurnt    types.Gas         `json:"gas_burnt"`
+		TokensBurnt types.Balance     `json:"tokens_burnt"`
+		ExecutorID  types.AccountID   `json:"executor_id"`
+		Status      Status            `json:"status"`
 	}
 
-	type Receipt struct {
-		Proof     []interface{}   `json:"proof"` // TODO: unknown type
-		BlockHash hash.CryptoHash `json:"block_hash"`
-		ID        hash.CryptoHash `json:"id"`
-		Outcome   Outcome         `json:"outcome"`
+	type MerklePathItem struct {
+		Hash      hash.CryptoHash `json:"hash"`
+		Direction string          `json:"direction"` // TODO: enum type, either 'Left' or 'Right'
+	}
+
+	type MerklePath []MerklePathItem
+
+	type ExecutionOutcomeWithIdView struct {
+		Proof     []MerklePath         `json:"proof"`
+		BlockHash hash.CryptoHash      `json:"block_hash"`
+		ID        hash.CryptoHash      `json:"id"`
+		Outcome   ExecutionOutcomeView `json:"outcome"`
 	}
 
 	var txnRes struct {
 		Status      Status `json:"status"`
 		Transaction struct {
-			SignerID   types.AccountID                                    `json:"signer_id"`
-			PublicKey  string                                             `json:"public_key"`
-			Nonce      types.Nonce                                        `json:"nonce"`
-			ReceiverID types.AccountID                                    `json:"receiver_id"`
-			Actions    []json.RawMessage/*types.Action*/ `json:"actions"` // TODO: types.Action
-			Signature  string                                             `json:"signature"`
-			Hash       hash.CryptoHash                                    `json:"hash"`
+			SignerID   types.AccountID `json:"signer_id"`
+			PublicKey  string          `json:"public_key"`
+			Nonce      types.Nonce     `json:"nonce"`
+			ReceiverID types.AccountID `json:"receiver_id"`
+			Actions    []action.Action `json:"actions"`
+			Signature  string          `json:"signature"`
+			Hash       hash.CryptoHash `json:"hash"`
 		} `json:"transaction"`
-		TransactionOutcome Receipt   `json:"transaction_outcome"`
-		ReceiptsOutcome    []Receipt `json:"receipts_outcome"`
+		TransactionOutcome ExecutionOutcomeWithIdView   `json:"transaction_outcome"`
+		ReceiptsOutcome    []ExecutionOutcomeWithIdView `json:"receipts_outcome"`
 	}
 
 	if err := json.Unmarshal(res.Result, &txnRes); err != nil {

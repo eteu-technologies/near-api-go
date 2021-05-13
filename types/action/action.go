@@ -1,6 +1,9 @@
 package action
 
 import (
+	"encoding/json"
+	"fmt"
+
 	"github.com/eteu-technologies/borsh-go"
 	"lukechampine.com/uint128"
 
@@ -31,6 +34,19 @@ const (
 	ordDeleteAccount
 )
 
+var (
+	ordMappings = map[string]uint8{
+		"CreateAccount":  ordCreateAccount,
+		"DeployContract": ordDeployContract,
+		"FunctionCall":   ordFunctionCall,
+		"Transfer":       ordTransfer,
+		"Stake":          ordStake,
+		"AddKey":         ordAddKey,
+		"DeleteKey":      ordDeleteKey,
+		"DeleteAccount":  ordDeleteAccount,
+	}
+)
+
 func (a *Action) PrepaidGas() types.Gas {
 	switch uint8(a.Enum) {
 	case ordFunctionCall:
@@ -54,24 +70,60 @@ func (a *Action) DepositBalance() types.Balance {
 func (a *Action) UnderlyingValue() interface{} {
 	switch uint8(a.Enum) {
 	case ordCreateAccount:
-		return a.CreateAccount
+		return &a.CreateAccount
 	case ordDeployContract:
-		return a.DeployContract
+		return &a.DeployContract
 	case ordFunctionCall:
-		return a.FunctionCall
+		return &a.FunctionCall
 	case ordTransfer:
-		return a.Transfer
+		return &a.Transfer
 	case ordStake:
-		return a.Stake
+		return &a.Stake
 	case ordAddKey:
-		return a.AddKey
+		return &a.AddKey
 	case ordDeleteKey:
-		return a.DeleteKey
+		return &a.DeleteKey
 	case ordDeleteAccount:
-		return a.DeleteAccount
+		return &a.DeleteAccount
 	}
 
 	panic("unreachable")
+}
+
+func (a Action) String() string {
+	ul := a.UnderlyingValue()
+	if u, ok := ul.(interface{ String() string }); ok {
+		return fmt.Sprintf("Action{%s}", u.String())
+	}
+
+	return fmt.Sprintf("Action{%#v}", ul)
+}
+
+func (a *Action) UnmarshalJSON(b []byte) error {
+	var obj map[string]json.RawMessage
+	if err := json.Unmarshal(b, &obj); err != nil {
+		return err
+	}
+
+	if l := len(obj); l > 1 {
+		return fmt.Errorf("action object contains invalid amout of keys (expected: 1, got: %d)", l)
+	}
+
+	var firstKey string
+	for k := range obj {
+		firstKey = k
+		break
+	}
+
+	ord := ordMappings[firstKey]
+	*a = Action{Enum: borsh.Enum(ord)}
+	ul := a.UnderlyingValue()
+
+	if err := json.Unmarshal(obj[firstKey], ul); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 type ActionCreateAccount struct {
@@ -87,25 +139,30 @@ func NewCreateAccount() Action {
 }
 
 type ActionDeployContract struct {
-	// TODO
+	Code []byte
 }
 
-// TODO
-func NewDeployContract() Action {
+func NewDeployContract(code []byte) Action {
 	return Action{
-		Enum:           borsh.Enum(ordDeployContract),
-		DeployContract: ActionDeployContract{},
+		Enum: borsh.Enum(ordDeployContract),
+		DeployContract: ActionDeployContract{
+			Code: code,
+		},
 	}
 }
 
 type ActionFunctionCall struct {
 	MethodName string
-	Args       string // Base64 string
+	Args       []byte // Base64 string
 	Gas        types.Gas
-	Deposit    uint128.Uint128
+	Deposit    types.Balance
 }
 
-func NewFunctionCall(methodName string, args string, gas types.Gas, deposit uint128.Uint128) Action {
+func (f ActionFunctionCall) String() string {
+	return fmt.Sprintf("FunctionCall{MethodName: %s, Args: %s, Gas: %d, Deposit: %s}", f.MethodName, f.Args, f.Gas, f.Deposit)
+}
+
+func NewFunctionCall(methodName string, args []byte, gas types.Gas, deposit types.Balance) Action {
 	return Action{
 		Enum: borsh.Enum(ordFunctionCall),
 		FunctionCall: ActionFunctionCall{
@@ -118,10 +175,14 @@ func NewFunctionCall(methodName string, args string, gas types.Gas, deposit uint
 }
 
 type ActionTransfer struct {
-	Deposit uint128.Uint128
+	Deposit types.Balance
 }
 
-func NewTransfer(deposit uint128.Uint128) Action {
+func (t ActionTransfer) String() string {
+	return fmt.Sprintf("Transfer{Deposit: %s}", t.Deposit)
+}
+
+func NewTransfer(deposit types.Balance) Action {
 	return Action{
 		Enum: borsh.Enum(ordTransfer),
 		Transfer: ActionTransfer{
@@ -132,6 +193,7 @@ func NewTransfer(deposit uint128.Uint128) Action {
 
 type ActionStake struct {
 	// TODO
+	Stake types.Balance
 }
 
 // TODO
@@ -167,13 +229,14 @@ func NewDeleteKey() Action {
 }
 
 type ActionDeleteAccount struct {
-	// TODO
+	BeneficiaryID types.AccountID
 }
 
-// TODO
-func NewDeleteAccount() Action {
+func NewDeleteAccount(beneficiaryID types.AccountID) Action {
 	return Action{
-		Enum:          borsh.Enum(ordDeleteAccount),
-		DeleteAccount: ActionDeleteAccount{},
+		Enum: borsh.Enum(ordDeleteAccount),
+		DeleteAccount: ActionDeleteAccount{
+			BeneficiaryID: beneficiaryID,
+		},
 	}
 }
