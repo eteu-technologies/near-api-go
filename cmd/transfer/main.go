@@ -7,20 +7,21 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"math/big"
 	"os"
 	"strings"
 
 	"github.com/davecgh/go-spew/spew"
+	borsh "github.com/eteu-technologies/borsh-go"
 	nearrpc "github.com/eteu-technologies/near-rpc-go"
 	"github.com/eteu-technologies/near-rpc-go/key"
 	"github.com/eteu-technologies/near-rpc-go/shim"
 	"github.com/mr-tron/base58"
-	borsh "github.com/near/borsh-go"
+	"lukechampine.com/uint128"
 
 	"github.com/eteu-technologies/near-api-go/types"
 	"github.com/eteu-technologies/near-api-go/types/action"
 	"github.com/eteu-technologies/near-api-go/types/hash"
+	"github.com/eteu-technologies/near-api-go/types/transaction"
 )
 
 var (
@@ -159,22 +160,19 @@ func main() {
 	log.Println("latest block hash: ", blockHash)
 
 	// Create a transaction
-	bal := big.Int{}
-	bal.SetUint64(uint64(10000000000000000000))
-
-	txn := types.Transaction{
+	txn := transaction.Transaction{
 		SignerID:   accID,
-		PublicKey:  types.PublicKeyFromED25519Key(pubKey),
+		PublicKey:  transaction.PublicKeyFromED25519Key(pubKey),
 		Nonce:      nonce + 1,
 		ReceiverID: targetAccID,
 		BlockHash:  blockHash,
 		Actions: []action.Action{
-			action.NewTransfer(bal),
+			action.NewTransfer(uint128.From64(10000000000000000000)),
 		},
 	}
 
 	// Sign the transaction
-	signedTxn, err := types.NewSignedTransaction(txn, privKey)
+	signedTxn, err := transaction.NewSignedTransaction(txn, privKey)
 	if err != nil {
 		log.Fatal("failed to create signed txn: ", err)
 	}
@@ -191,7 +189,7 @@ func main() {
 	}
 
 	// Try to parse txn
-	var txn2 types.Transaction
+	var txn2 transaction.Transaction
 	if err := borsh.Deserialize(&txn2, signedTxn.SerializedTransaction); err != nil {
 		log.Fatal("failed to deserialize txn: ", err)
 	}

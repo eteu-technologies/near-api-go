@@ -1,9 +1,10 @@
 package action
 
 import (
-	"math/big"
+	"github.com/eteu-technologies/borsh-go"
+	"lukechampine.com/uint128"
 
-	"github.com/near/borsh-go"
+	"github.com/eteu-technologies/near-api-go/types"
 )
 
 type Action struct {
@@ -30,7 +31,7 @@ const (
 	OrdDeleteAccount
 )
 
-func (a *Action) PrepaidGas() uint64 {
+func (a *Action) PrepaidGas() types.Gas {
 	switch uint8(a.Enum) {
 	case OrdFunctionCall:
 		return a.FunctionCall.Gas
@@ -39,14 +40,14 @@ func (a *Action) PrepaidGas() uint64 {
 	}
 }
 
-func (a *Action) DepositBalance() big.Int {
+func (a *Action) DepositBalance() types.Balance {
 	switch uint8(a.Enum) {
 	case OrdFunctionCall:
-		return a.FunctionCall.Deposit
+		return types.Balance(a.FunctionCall.Deposit)
 	case OrdTransfer:
-		return a.Transfer.Deposit
+		return types.Balance(a.Transfer.Deposit)
 	default:
-		return *big.NewInt(0)
+		return types.Balance(uint128.Zero)
 	}
 }
 
@@ -100,11 +101,11 @@ func NewDeployContract() Action {
 type ActionFunctionCall struct {
 	MethodName string
 	Args       string // Base64 string
-	Gas        uint64
-	Deposit    big.Int
+	Gas        types.Gas
+	Deposit    uint128.Uint128
 }
 
-func NewFunctionCall(methodName string, args string, gas uint64, deposit big.Int) Action {
+func NewFunctionCall(methodName string, args string, gas types.Gas, deposit uint128.Uint128) Action {
 	return Action{
 		Enum: borsh.Enum(OrdFunctionCall),
 		FunctionCall: ActionFunctionCall{
@@ -117,10 +118,10 @@ func NewFunctionCall(methodName string, args string, gas uint64, deposit big.Int
 }
 
 type ActionTransfer struct {
-	Deposit big.Int
+	Deposit uint128.Uint128
 }
 
-func NewTransfer(deposit big.Int) Action {
+func NewTransfer(deposit uint128.Uint128) Action {
 	return Action{
 		Enum: borsh.Enum(OrdTransfer),
 		Transfer: ActionTransfer{

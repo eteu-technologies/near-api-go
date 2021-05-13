@@ -1,11 +1,11 @@
-package types
+package transaction
 
 import (
 	"crypto/ed25519"
-	"math/big"
 
-	"github.com/near/borsh-go"
+	"github.com/eteu-technologies/borsh-go"
 
+	"github.com/eteu-technologies/near-api-go/types"
 	. "github.com/eteu-technologies/near-api-go/types/action"
 	. "github.com/eteu-technologies/near-api-go/types/hash"
 )
@@ -70,9 +70,9 @@ func (t *Transaction) HashAndSign(key ed25519.PrivateKey) (CryptoHash, []byte, S
 type ExcecutionOutcome struct {
 	Logs        []string // TODO: LogEntry type
 	ReceiptIds  []CryptoHash
-	GasBurnt    Gas
-	TokensBurnt Balance
-	ExecutorID  AccountID
+	GasBurnt    types.Gas
+	TokensBurnt types.Balance
+	ExecutorID  types.AccountID
 	Status      interface{} // TODO: ExecutionStatus
 }
 
@@ -101,20 +101,3 @@ func PublicKeyFromED25519Key(key ed25519.PublicKey) PublicKey {
 	copy(buf[:], bbuf)
 	return buf
 }
-
-// Account identifier. Provides access to user's state.
-type AccountID string
-
-// Gas is a type for storing amounts of gas.
-type Gas uint64
-
-type Balance big.Int
-
-// Nonce for transactions.
-type Nonce uint64
-
-// ExecutionStatus
-// - Unknown; The execution is pending or unknown.
-// - Failure(TxExecutionError); The execution has failed with the given execution error.
-// - SuccessValue([]byte); The final action succeeded and returned some value or an empty vec.
-// - SucessReceiptId(CryptoHash); The final action of the receipt returned a promise or the signed transaction was converted to a receipt. Contains the receipt_id of the generated receipt.
