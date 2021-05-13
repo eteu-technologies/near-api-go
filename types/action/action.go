@@ -59,9 +59,9 @@ func (a *Action) PrepaidGas() types.Gas {
 func (a *Action) DepositBalance() types.Balance {
 	switch uint8(a.Enum) {
 	case ordFunctionCall:
-		return types.Balance(a.FunctionCall.Deposit)
+		return a.FunctionCall.Deposit
 	case ordTransfer:
-		return types.Balance(a.Transfer.Deposit)
+		return a.Transfer.Deposit
 	default:
 		return types.Balance(uint128.Zero)
 	}
