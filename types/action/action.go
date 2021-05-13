@@ -78,7 +78,7 @@ type ActionCreateAccount struct {
 }
 
 // TODO
-func NewActionCreateAccount() Action {
+func NewCreateAccount() Action {
 	return Action{
 		Enum:          borsh.Enum(OrdCreateAccount),
 		CreateAccount: ActionCreateAccount{},
@@ -90,7 +90,7 @@ type ActionDeployContract struct {
 }
 
 // TODO
-func NewActionDeployContract() Action {
+func NewDeployContract() Action {
 	return Action{
 		Enum:           borsh.Enum(OrdDeployContract),
 		DeployContract: ActionDeployContract{},
@@ -104,7 +104,7 @@ type ActionFunctionCall struct {
 	Deposit    big.Int
 }
 
-func NewActionFunctionCall(methodName string, args string, gas uint64, deposit big.Int) Action {
+func NewFunctionCall(methodName string, args string, gas uint64, deposit big.Int) Action {
 	return Action{
 		Enum: borsh.Enum(OrdFunctionCall),
 		FunctionCall: ActionFunctionCall{
@@ -120,7 +120,7 @@ type ActionTransfer struct {
 	Deposit big.Int
 }
 
-func NewActionTransfer(deposit big.Int) Action {
+func NewTransfer(deposit big.Int) Action {
 	return Action{
 		Enum: borsh.Enum(OrdTransfer),
 		Transfer: ActionTransfer{
@@ -134,7 +134,7 @@ type ActionStake struct {
 }
 
 // TODO
-func NewActionStake() Action {
+func NewStake() Action {
 	return Action{
 		Enum:  borsh.Enum(OrdStake),
 		Stake: ActionStake{},
@@ -146,7 +146,7 @@ type ActionAddKey struct {
 }
 
 // TODO
-func NewActionAddKey() Action {
+func NewAddKey() Action {
 	return Action{
 		Enum:   borsh.Enum(OrdAddKey),
 		AddKey: ActionAddKey{},
@@ -158,7 +158,7 @@ type ActionDeleteKey struct {
 }
 
 // TODO
-func NewActionDeleteKey() Action {
+func NewDeleteKey() Action {
 	return Action{
 		Enum:      borsh.Enum(OrdDeleteKey),
 		DeleteKey: ActionDeleteKey{},
@@ -170,7 +170,7 @@ type ActionDeleteAccount struct {
 }
 
 // TODO
-func NewActionDeleteAccount() Action {
+func NewDeleteAccount() Action {
 	return Action{
 		Enum:          borsh.Enum(OrdDeleteAccount),
 		DeleteAccount: ActionDeleteAccount{},

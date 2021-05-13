@@ -12,14 +12,15 @@ import (
 	"strings"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/eteu-technologies/near-api-go/types"
-	"github.com/eteu-technologies/near-api-go/types/action"
-	"github.com/eteu-technologies/near-api-go/types/hash"
 	nearrpc "github.com/eteu-technologies/near-rpc-go"
 	"github.com/eteu-technologies/near-rpc-go/key"
 	"github.com/eteu-technologies/near-rpc-go/shim"
 	"github.com/mr-tron/base58"
 	borsh "github.com/near/borsh-go"
+
+	"github.com/eteu-technologies/near-api-go/types"
+	"github.com/eteu-technologies/near-api-go/types/action"
+	"github.com/eteu-technologies/near-api-go/types/hash"
 )
 
 var (
@@ -95,15 +96,15 @@ func main() {
 		Author types.AccountID `json:"author"`
 		Header struct {
 			Height                uint64            `json:"height"`
-			EpochID               string            `json:"epoch_id"`            // TODO: base58 string?
-			NextEpochID           string            `json:"next_epoch_id"`       // TODO: base58 string?
-			Hash                  string            `json:"hash"`                // TODO: base58 string?
-			PrevHash              string            `json:"prev_hash"`           // TODO: base58 string?
-			PrevStateRoot         string            `json:"prev_state_root"`     // TODO: base58 string?
-			ChunkReceiptsRoot     string            `json:"chunk_receipts_root"` // TODO: base58 string?
-			ChunkHeadersRoot      string            `json:"chunk_headers_root"`  // TODO: base58 string?
-			ChunkTxRoot           string            `json:"chunk_tx_root"`       // TODO: base58 string?
-			OutcomeRoot           string            `json:"outcome_root"`        // TODO: base58 string?
+			EpochID               hash.CryptoHash   `json:"epoch_id"`
+			NextEpochID           hash.CryptoHash   `json:"next_epoch_id"`
+			Hash                  hash.CryptoHash   `json:"hash"`
+			PrevHash              hash.CryptoHash   `json:"prev_hash"`
+			PrevStateRoot         hash.CryptoHash   `json:"prev_state_root"`
+			ChunkReceiptsRoot     hash.CryptoHash   `json:"chunk_receipts_root"`
+			ChunkHeadersRoot      hash.CryptoHash   `json:"chunk_headers_root"`
+			ChunkTxRoot           hash.CryptoHash   `json:"chunk_tx_root"`
+			OutcomeRoot           hash.CryptoHash   `json:"outcome_root"`
 			ChunksIncluded        uint64            `json:"chunks_included"`
 			ChallengesRoot        string            `json:"challenges_root"`
 			Timestamp             uint64            `json:"timestamp"`         // milliseconds
@@ -111,17 +112,17 @@ func main() {
 			RandomValue           string            `json:"random_value"`
 			ValidatorProposals    []json.RawMessage `json:"validator_proposals"` // TODO: unknown type, check rust code
 			ChunkMask             []bool            `json:"chunk_mask"`
-			GasPrice              json.RawMessage   `json:"gas_price"`           // TODO: types.Gas deserializing from string
-			RentPaid              json.RawMessage   `json:"rent_paid"`           // TODO: unknown type, check rust code
-			ValidatorReward       json.RawMessage   `json:"validator_reward"`    // TODO: unknown type, check rust code
-			TotalSupply           json.RawMessage   `json:"total_supply"`        // TODO: unknown type, check rust code
-			ChallengesResult      []json.RawMessage `json:"challenges_result"`   // TODO: unknown type, check rust code
-			LastFinalBlock        string            `json:"last_final_block"`    // TODO: base58 string?
-			LastDSFinalBlock      string            `json:"last_ds_final_block"` // TODO: base58 string?
-			NextBPHash            string            `json:"next_bp_hash"`        // TODO: base58 string?
-			BlockMerkleRoot       string            `json:"block_merkle_root"`   // TODO: base58 string?
-			Approvals             []string          `json:"approvals"`           // TODO: array of nullable ed25519 signatures
-			Signature             string            `json:"signature"`           // TODO: ed25519 signature
+			GasPrice              json.RawMessage   `json:"gas_price"`         // TODO: types.Gas deserializing from string
+			RentPaid              json.RawMessage   `json:"rent_paid"`         // TODO: unknown type, check rust code
+			ValidatorReward       json.RawMessage   `json:"validator_reward"`  // TODO: unknown type, check rust code
+			TotalSupply           json.RawMessage   `json:"total_supply"`      // TODO: unknown type, check rust code
+			ChallengesResult      []json.RawMessage `json:"challenges_result"` // TODO: unknown type, check rust code
+			LastFinalBlock        hash.CryptoHash   `json:"last_final_block"`
+			LastDSFinalBlock      hash.CryptoHash   `json:"last_ds_final_block"`
+			NextBPHash            hash.CryptoHash   `json:"next_bp_hash"`
+			BlockMerkleRoot       hash.CryptoHash   `json:"block_merkle_root"`
+			Approvals             []string          `json:"approvals"` // TODO: array of nullable ed25519 signatures
+			Signature             string            `json:"signature"` // TODO: ed25519 signature
 			LatestProtocolVersion uint64            `json:"latest_protocol_version"`
 		} `json:"header"`
 		Chunks []struct {
@@ -166,9 +167,9 @@ func main() {
 		PublicKey:  types.PublicKeyFromED25519Key(pubKey),
 		Nonce:      nonce + 1,
 		ReceiverID: targetAccID,
-		BlockHash:  hash.MustValidCryptoHash(hash.NewCryptoHashFromBase58(blockHash)),
+		BlockHash:  blockHash,
 		Actions: []action.Action{
-			action.NewActionTransfer(bal),
+			action.NewTransfer(bal),
 		},
 	}
 
@@ -184,8 +185,8 @@ func main() {
 	}
 
 	// Try to verify the signature
-	hash := signedTxn.Hash()
-	if !ed25519.Verify(pubKey, hash[:], signedTxn.Signature[1:]) {
+	sigHash := signedTxn.Hash()
+	if !ed25519.Verify(pubKey, sigHash[:], signedTxn.Signature[1:]) {
 		log.Fatal("failed to verify payload")
 	}
 
@@ -217,10 +218,10 @@ func main() {
 	}
 
 	type Receipt struct {
-		Proof     []interface{} `json:"proof"`      // TODO: unknown type
-		BlockHash string        `json:"block_hash"` // TODO: base58 string
-		ID        string        `json:"id"`         // TODO: base58 string
-		Outcome   Outcome       `json:"outcome"`
+		Proof     []interface{}   `json:"proof"` // TODO: unknown type
+		BlockHash hash.CryptoHash `json:"block_hash"`
+		ID        hash.CryptoHash `json:"id"`
+		Outcome   Outcome         `json:"outcome"`
 	}
 
 	var txnRes struct {

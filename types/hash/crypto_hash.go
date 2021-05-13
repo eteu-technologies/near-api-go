@@ -2,6 +2,7 @@ package hash
 
 import (
 	"crypto/sha256"
+	"encoding/json"
 	"fmt"
 
 	simdsha256 "github.com/minio/sha256-simd"
@@ -9,6 +10,35 @@ import (
 )
 
 type CryptoHash [sha256.Size]byte // SHA-256 digest
+
+func (c *CryptoHash) UnmarshalJSON(b []byte) error {
+	var s string
+	if err := json.Unmarshal(b, &s); err != nil {
+		return err
+	}
+
+	data, err := base58.Decode(string(s))
+	if err != nil {
+		return err
+	}
+
+	if l := len(data); l != sha256.Size {
+		return fmt.Errorf("sha256 digest len %d != 32", l)
+	}
+
+	*c = CryptoHash{}
+	copy(c[:], data)
+
+	return nil
+}
+
+func (c CryptoHash) MarshalJSON() ([]byte, error) {
+	return json.Marshal(c.String())
+}
+
+func (c CryptoHash) String() string {
+	return base58.Encode(c[:])
+}
 
 func NewCryptoHash(data []byte) CryptoHash {
 	_ = simdsha256.Sum256
