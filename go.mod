@@ -14,3 +14,4 @@ require (
 )
 
 replace github.com/eteu-technologies/near-rpc-go => ./near-rpc-go
+replace github.com/eteu-technologies/borsh-go => ./borsh-go
