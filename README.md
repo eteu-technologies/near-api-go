@@ -4,4 +4,4 @@ _To be written_
 
 ## License
 
-LGPLv3.0
+MIT
