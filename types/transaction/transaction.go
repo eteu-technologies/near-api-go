@@ -48,16 +48,3 @@ type ExcecutionOutcome struct {
 	ExecutorID  types.AccountID
 	Status      interface{} // TODO: ExecutionStatus
 }
-
-// TODO: SECP256K1
-type Signature [1 + ed25519.SignatureSize]byte
-
-func NewSignatureED25519(data []byte) Signature {
-	var buf [65]byte
-
-	bbuf := []byte{0x0}
-	bbuf = append(bbuf, data...)
-
-	copy(buf[:], bbuf)
-	return buf
-}
