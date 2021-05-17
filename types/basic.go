@@ -32,6 +32,10 @@ func (bal *Balance) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+func (bal Balance) MarshalJSON() ([]byte, error) {
+	return json.Marshal(bal.String())
+}
+
 func (bal Balance) String() string {
 	return uint128.Uint128(bal).String()
 }
