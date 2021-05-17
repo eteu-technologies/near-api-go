@@ -40,13 +40,13 @@ func PublicKeyFromBytes(b []byte) (pk PublicKey, err error) {
 	f := b[0]
 	l := len(b) - 1
 	switch f {
-	case byte(RawPublicKeyTypeED25519):
+	case RawPublicKeyTypeED25519:
 		if l != ed25519.PublicKeySize {
 			return pk, ErrInvalidPublicKey
 		}
 		copy(pk[:], b)
 		return
-	case byte(RawPublicKeyTypeSECP256K1):
+	case RawPublicKeyTypeSECP256K1:
 		// TODO!
 		return pk, fmt.Errorf("SECP256K1 is not supported yet")
 	}
@@ -55,11 +55,8 @@ func PublicKeyFromBytes(b []byte) (pk PublicKey, err error) {
 }
 
 func WrapED25519(key ed25519.PublicKey) PublicKey {
-	var buf [33]byte
-
-	bbuf := []byte{0x0}
-	bbuf = append(bbuf, key...)
-
-	copy(buf[:], bbuf)
+	var buf PublicKey
+	buf[0] = RawPublicKeyTypeED25519
+	copy(buf[1:], key[0:ed25519.PublicKeySize])
 	return buf
 }

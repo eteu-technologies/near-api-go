@@ -2,11 +2,10 @@ package key
 
 import "errors"
 
-type RawPublicKeyType uint8
 type PublicKeyType string
 
 const (
-	RawPublicKeyTypeED25519 RawPublicKeyType = iota
+	RawPublicKeyTypeED25519 byte = iota
 	RawPublicKeyTypeSECP256K1
 )
 
@@ -20,11 +19,11 @@ var (
 	ErrInvalidPublicKeyType = errors.New("invalid public key type")
 
 	// nolint: deadcode,varcheck,unused
-	publicKeyTypes = map[RawPublicKeyType]PublicKeyType{
+	publicKeyTypes = map[byte]PublicKeyType{
 		RawPublicKeyTypeED25519:   PublicKeyTypeED25519,
 		RawPublicKeyTypeSECP256K1: PublicKeyTypeSECP256K1,
 	}
-	reverseKeyTypeMapping = map[string]RawPublicKeyType{
+	reverseKeyTypeMapping = map[string]byte{
 		string(PublicKeyTypeED25519):   RawPublicKeyTypeED25519,
 		string(PublicKeyTypeSECP256K1): RawPublicKeyTypeSECP256K1,
 	}
