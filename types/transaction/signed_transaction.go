@@ -1,8 +1,6 @@
 package transaction
 
 import (
-	"crypto/ed25519"
-
 	"github.com/eteu-technologies/near-api-go/types/hash"
 	"github.com/eteu-technologies/near-api-go/types/key"
 )
@@ -16,9 +14,9 @@ type SignedTransaction struct {
 	size                  int             `borsh_skip:"true"`
 }
 
-func NewSignedTransaction(signingKey ed25519.PrivateKey, transaction Transaction) (stxn SignedTransaction, err error) {
+func NewSignedTransaction(keyPair key.KeyPair, transaction Transaction) (stxn SignedTransaction, err error) {
 	stxn.Transaction = transaction
-	stxn.hash, stxn.SerializedTransaction, stxn.Signature, err = transaction.HashAndSign(signingKey)
+	stxn.hash, stxn.SerializedTransaction, stxn.Signature, err = transaction.HashAndSign(keyPair)
 	if err != nil {
 		return
 	}

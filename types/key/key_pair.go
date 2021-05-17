@@ -55,3 +55,14 @@ func NewBase58KeyPair(raw string) (kp KeyPair, err error) {
 
 	return
 }
+
+func (kp *KeyPair) Sign(data []byte) (sig Signature) {
+	sigType := reverseKeyTypeMapping[string(kp.Type)]
+
+	switch sigType {
+	//case RawPublicKeyTypeSECP256K1:
+	case RawPublicKeyTypeED25519:
+		sig = NewSignatureED25519(ed25519.Sign(kp.PrivateKey, data))
+	}
+	return
+}

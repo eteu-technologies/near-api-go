@@ -147,7 +147,7 @@ func main() {
 	log.Println("latest block hash: ", blockHash)
 
 	// Create and sign the transaction
-	signedTxn, err := transaction.NewSignedTransaction(keyPair.PrivateKey, transaction.Transaction{
+	signedTxn, err := transaction.NewSignedTransaction(keyPair, transaction.Transaction{
 		SignerID:   accID,
 		PublicKey:  keyPair.PublicKey.ToPublicKey(),
 		Nonce:      nonce + 1,

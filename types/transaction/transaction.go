@@ -1,8 +1,6 @@
 package transaction
 
 import (
-	"crypto/ed25519"
-
 	"github.com/eteu-technologies/borsh-go"
 
 	"github.com/eteu-technologies/near-api-go/types/action"
@@ -29,12 +27,12 @@ func (t Transaction) Hash() (txnHash hash.CryptoHash, serialized []byte, err err
 	return
 }
 
-func (t Transaction) HashAndSign(privKey ed25519.PrivateKey) (txnHash hash.CryptoHash, serialized []byte, sig key.Signature, err error) {
+func (t Transaction) HashAndSign(keyPair key.KeyPair) (txnHash hash.CryptoHash, serialized []byte, sig key.Signature, err error) {
 	txnHash, serialized, err = t.Hash()
 	if err != nil {
 		return
 	}
 
-	sig = key.NewSignatureED25519(ed25519.Sign(privKey, txnHash[:]))
+	sig = keyPair.Sign(txnHash[:])
 	return
 }
