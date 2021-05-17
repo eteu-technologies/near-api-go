@@ -15,7 +15,7 @@ type SignedTransaction struct {
 	size                  int             `borsh_skip:"true"`
 }
 
-func NewSignedTransaction(transaction Transaction, signingKey ed25519.PrivateKey) (stxn SignedTransaction, err error) {
+func NewSignedTransaction(signingKey ed25519.PrivateKey, transaction Transaction) (stxn SignedTransaction, err error) {
 	stxn.Transaction = transaction
 	stxn.hash, stxn.SerializedTransaction, stxn.Signature, err = transaction.HashAndSign(signingKey)
 	if err != nil {

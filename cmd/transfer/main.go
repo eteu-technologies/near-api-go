@@ -178,7 +178,7 @@ func main() {
 	}
 
 	// Sign the transaction
-	signedTxn, err := transaction.NewSignedTransaction(txn, privKey)
+	signedTxn, err := transaction.NewSignedTransaction(privKey, txn)
 	if err != nil {
 		log.Fatal("failed to create signed txn: ", err)
 	}
