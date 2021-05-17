@@ -41,6 +41,11 @@ func (bal Balance) String() string {
 	return uint128.Uint128(bal).String()
 }
 
+// Convenience funcs
+func (bal Balance) Div64(div uint64) Balance {
+	return Balance(uint128.Uint128(bal).Div64(div))
+}
+
 // TODO
 func NEARToYocto(near uint64) Balance {
 	if near == 0 {

@@ -173,7 +173,7 @@ func main() {
 		ReceiverID: targetAccID,
 		BlockHash:  blockHash,
 		Actions: []action.Action{
-			action.NewTransfer(types.Balance(types.NEARToYocto(1).Div64(1000))),
+			action.NewTransfer(types.NEARToYocto(1).Div64(1000)),
 		},
 	}
 
