@@ -62,9 +62,10 @@ func NewCryptoHashFromBase58(blob string) (ch CryptoHash, err error) {
 	return
 }
 
-func MustValidCryptoHash(ch CryptoHash, err error) CryptoHash {
-	if err != nil {
+func MustCryptoHashFromBase58(blob string) CryptoHash {
+	if hash, err := NewCryptoHashFromBase58(blob); err != nil {
 		panic(err)
+	} else {
+		return hash
 	}
-	return ch
 }
