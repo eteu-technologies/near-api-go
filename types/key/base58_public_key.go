@@ -58,3 +58,7 @@ func (pk *Base58PublicKey) UnmarshalJSON(b []byte) (err error) {
 	*pk, err = NewBase58PublicKey(s)
 	return
 }
+
+func (pk *Base58PublicKey) ToPublicKey() PublicKey {
+	return pk.pk
+}

@@ -36,6 +36,14 @@ func (p *PublicKey) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+func (p *PublicKey) ToBase58PublicKey() *Base58PublicKey {
+	return &Base58PublicKey{
+		Type:  publicKeyTypes[p[0]],
+		Value: base58.Encode(p[1:]),
+		pk:    *p,
+	}
+}
+
 func PublicKeyFromBytes(b []byte) (pk PublicKey, err error) {
 	f := b[0]
 	l := len(b) - 1
