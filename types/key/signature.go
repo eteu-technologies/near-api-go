@@ -7,7 +7,7 @@ type Signature [1 + ed25519.SignatureSize]byte
 
 func NewSignatureED25519(data []byte) Signature {
 	var buf Signature
-	buf[0] = 0
+	buf[0] = RawSignatureTypeED25519
 	copy(buf[1:], data[0:ed25519.SignatureSize])
 	return buf
 }
