@@ -62,9 +62,29 @@ func PublicKeyFromBytes(b []byte) (pk PublicKey, err error) {
 	return pk, ErrInvalidPublicKeyType
 }
 
-func WrapED25519(key ed25519.PublicKey) PublicKey {
+func WrapRawKey(keyType PublicKeyType, key []byte) (pk PublicKey, err error) {
 	var buf PublicKey
-	buf[0] = RawPublicKeyTypeED25519
-	copy(buf[1:], key[0:ed25519.PublicKeySize])
-	return buf
+	switch keyType {
+	case PublicKeyTypeED25519:
+		if len(key) != ed25519.PublicKeySize {
+			return pk, ErrInvalidPublicKey
+		}
+
+		buf[0] = RawPublicKeyTypeED25519
+		copy(buf[1:], key[0:ed25519.PublicKeySize])
+		return
+	case PublicKeyTypeSECP256K1:
+		// TODO!
+		return pk, fmt.Errorf("SECP256K1 is not supported yet")
+	}
+
+	return pk, ErrInvalidPublicKeyType
+}
+
+func WrapED25519(key ed25519.PublicKey) PublicKey {
+	if pk, err := WrapRawKey(PublicKeyTypeED25519, key); err != nil {
+		panic(err)
+	} else {
+		return pk
+	}
 }

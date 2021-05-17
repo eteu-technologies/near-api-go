@@ -21,9 +21,10 @@ func NewBase58PublicKey(raw string) (pk Base58PublicKey, err error) {
 		return pk, ErrInvalidPublicKey
 	}
 
+	keyTypeRaw := split[0]
 	encodedKey := split[1]
 
-	keyType, ok := reverseKeyTypeMapping[split[0]]
+	keyType, ok := reverseKeyTypeMapping[keyTypeRaw]
 	if !ok {
 		return pk, ErrInvalidPublicKeyType
 	}
@@ -36,7 +37,7 @@ func NewBase58PublicKey(raw string) (pk Base58PublicKey, err error) {
 	pk.Type = publicKeyTypes[keyType]
 	pk.Value = encodedKey
 
-	pk.pk, err = PublicKeyFromBytes(decoded)
+	pk.pk, err = WrapRawKey(pk.Type, decoded)
 
 	return
 }
