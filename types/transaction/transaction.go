@@ -43,7 +43,7 @@ func (t *Transaction) HashAndSign(key ed25519.PrivateKey) (CryptoHash, []byte, S
 type ExcecutionOutcome struct {
 	Logs        []string // TODO: LogEntry type
 	ReceiptIds  []CryptoHash
-	GasBurnt    types.Gas
+	GasBurnt    uint64 // TODO: panic: reflect.Set: value of type uint64 is not assignable to type types.Gas
 	TokensBurnt types.Balance
 	ExecutorID  types.AccountID
 	Status      interface{} // TODO: ExecutionStatus

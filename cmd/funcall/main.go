@@ -137,13 +137,10 @@ func main() {
 	}
 
 	// Try to parse txn
-	// TODO: panic: reflect.Set: value of type uint64 is not assignable to type types.Gas
-	/*
-		var txn2 transaction.Transaction
-		if err := borsh.Deserialize(&txn2, signedTxn.SerializedTransaction); err != nil {
-			log.Fatal("failed to deserialize txn: ", err)
-		}
-	*/
+	var txn2 transaction.Transaction
+	if err := borsh.Deserialize(&txn2, signedTxn.SerializedTransaction); err != nil {
+		log.Fatal("failed to deserialize txn: ", err)
+	}
 
 	stxnBlob := base64.StdEncoding.EncodeToString(stxnSerialized)
 	res, err := rpc.TransactionSendAwait(ctx, stxnBlob)

@@ -51,7 +51,7 @@ var (
 func (a *Action) PrepaidGas() types.Gas {
 	switch uint8(a.Enum) {
 	case ordFunctionCall:
-		return a.FunctionCall.Gas
+		return types.Gas(a.FunctionCall.Gas)
 	default:
 		return 0
 	}
@@ -153,8 +153,8 @@ func NewDeployContract(code []byte) Action {
 
 type ActionFunctionCall struct {
 	MethodName string
-	Args       []byte // Base64 string
-	Gas        types.Gas
+	Args       []byte
+	Gas        uint64 // TODO: types.Gas causes panic in borsh library.
 	Deposit    types.Balance
 }
 
@@ -168,7 +168,7 @@ func NewFunctionCall(methodName string, args []byte, gas types.Gas, deposit type
 		FunctionCall: ActionFunctionCall{
 			MethodName: methodName,
 			Args:       args,
-			Gas:        gas,
+			Gas:        uint64(gas),
 			Deposit:    deposit,
 		},
 	}
