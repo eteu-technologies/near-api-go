@@ -8,6 +8,7 @@ import (
 	"lukechampine.com/uint128"
 
 	"github.com/eteu-technologies/near-api-go/types"
+	"github.com/eteu-technologies/near-api-go/types/key"
 )
 
 type Action struct {
@@ -127,10 +128,9 @@ func (a *Action) UnmarshalJSON(b []byte) error {
 }
 
 type ActionCreateAccount struct {
-	// TODO
 }
 
-// TODO
+// Create an (sub)account using a transaction `receiver_id` as an ID for a new account
 func NewCreateAccount() Action {
 	return Action{
 		Enum:          borsh.Enum(ordCreateAccount),
@@ -192,24 +192,31 @@ func NewTransfer(deposit types.Balance) Action {
 }
 
 type ActionStake struct {
-	// TODO
+	// Amount of tokens to stake.
 	Stake types.Balance
+	// Validator key which will be used to sign transactions on behalf of singer_id
+	PublicKey key.PublicKey
 }
 
-// TODO
-func NewStake() Action {
+func NewStake(stake types.Balance, publicKey key.PublicKey) Action {
 	return Action{
-		Enum:  borsh.Enum(ordStake),
-		Stake: ActionStake{},
+		Enum: borsh.Enum(ordStake),
+		Stake: ActionStake{
+			Stake:     stake,
+			PublicKey: publicKey,
+		},
 	}
 }
 
 type ActionAddKey struct {
-	// TODO
+	PublicKey key.PublicKey
+	AccessKey struct {
+		Nonce      types.Nonce
+		Permission AccessKeyPermission
+	}
 }
 
-// TODO
-func NewAddKey() Action {
+func NewAddKey(publicKey key.PublicKey, nonce types.Nonce, permission AccessKeyPermission) Action {
 	return Action{
 		Enum:   borsh.Enum(ordAddKey),
 		AddKey: ActionAddKey{},
@@ -217,14 +224,15 @@ func NewAddKey() Action {
 }
 
 type ActionDeleteKey struct {
-	// TODO
+	PublicKey key.PublicKey
 }
 
-// TODO
-func NewDeleteKey() Action {
+func NewDeleteKey(publicKey key.PublicKey) Action {
 	return Action{
-		Enum:      borsh.Enum(ordDeleteKey),
-		DeleteKey: ActionDeleteKey{},
+		Enum: borsh.Enum(ordDeleteKey),
+		DeleteKey: ActionDeleteKey{
+			PublicKey: publicKey,
+		},
 	}
 }
 
