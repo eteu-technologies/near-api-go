@@ -115,7 +115,7 @@ func main() {
 		ReceiverID: targetAccID,
 		BlockHash:  blockHash,
 		Actions: []action.Action{
-			action.NewFunctionCall("increment", []byte(`{"some_complex_args":{"yup":123.456}}`), types.DefaultFunctionCallGas, types.NEARToYocto(0)),
+			action.NewFunctionCall("increment", nil, types.DefaultFunctionCallGas, types.NEARToYocto(0)),
 		},
 	}
 
