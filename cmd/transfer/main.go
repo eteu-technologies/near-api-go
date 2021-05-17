@@ -165,8 +165,8 @@ func main() {
 	blockHash := blockDetails.Header.Hash
 	log.Println("latest block hash: ", blockHash)
 
-	// Create a transaction
-	txn := transaction.Transaction{
+	// Create and sign the transaction
+	signedTxn, err := transaction.NewSignedTransaction(privKey, transaction.Transaction{
 		SignerID:   accID,
 		PublicKey:  key.WrapED25519(pubKey),
 		Nonce:      nonce + 1,
@@ -175,10 +175,7 @@ func main() {
 		Actions: []action.Action{
 			action.NewTransfer(types.NEARToYocto(1).Div64(1000)),
 		},
-	}
-
-	// Sign the transaction
-	signedTxn, err := transaction.NewSignedTransaction(privKey, txn)
+	})
 	if err != nil {
 		log.Fatal("failed to create signed txn: ", err)
 	}
