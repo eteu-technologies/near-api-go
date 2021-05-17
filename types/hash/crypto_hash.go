@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	simdsha256 "github.com/minio/sha256-simd"
 	"github.com/mr-tron/base58"
 )
 
@@ -43,9 +42,7 @@ func (c CryptoHash) String() string {
 }
 
 func NewCryptoHash(data []byte) CryptoHash {
-	_ = simdsha256.Sum256
-	sum := sha256.Sum256(data)
-	return CryptoHash(sum)
+	return CryptoHash(sha256.Sum256(data))
 }
 
 func NewCryptoHashFromBase58(blob string) (ch CryptoHash, err error) {
