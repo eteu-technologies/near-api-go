@@ -30,7 +30,7 @@ func NewBase58KeyPair(raw string) (kp KeyPair, err error) {
 	}
 
 	// TODO
-	if keyType == RawPublicKeyTypeSECP256K1 {
+	if keyType == RawKeyTypeSECP256K1 {
 		return kp, fmt.Errorf("SECP256K1 is not supported yet")
 	}
 
@@ -46,7 +46,7 @@ func NewBase58KeyPair(raw string) (kp KeyPair, err error) {
 	kp.PrivateKey = ed25519.PrivateKey(decoded)
 	pubKey := kp.PrivateKey[32:] // See ed25519.Public()
 
-	kp.Type = publicKeyTypes[keyType]
+	kp.Type = keyTypes[keyType]
 	if pubKey, err := WrapRawKey(kp.Type, pubKey); err != nil {
 		return kp, err
 	} else {
@@ -61,7 +61,7 @@ func (kp *KeyPair) Sign(data []byte) (sig Signature) {
 
 	switch sigType {
 	//case RawPublicKeyTypeSECP256K1:
-	case RawPublicKeyTypeED25519:
+	case RawKeyTypeED25519:
 		sig = NewSignatureED25519(ed25519.Sign(kp.PrivateKey, data))
 	}
 	return

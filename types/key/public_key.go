@@ -51,9 +51,9 @@ func (p *PublicKey) Verify(data []byte, signature Signature) (ok bool, err error
 	}
 
 	switch keyType {
-	case RawPublicKeyTypeED25519:
+	case RawKeyTypeED25519:
 		ok = ed25519.Verify(ed25519.PublicKey(p.Value()), data, signature.Value())
-	case RawPublicKeyTypeSECP256K1:
+	case RawKeyTypeSECP256K1:
 		// TODO!
 		return false, fmt.Errorf("SECP256K1 is not supported yet")
 	}
@@ -63,7 +63,7 @@ func (p *PublicKey) Verify(data []byte, signature Signature) (ok bool, err error
 
 func (p *PublicKey) ToBase58PublicKey() Base58PublicKey {
 	return Base58PublicKey{
-		Type:  publicKeyTypes[p[0]],
+		Type:  keyTypes[p[0]],
 		Value: base58.Encode(p[1:]),
 		pk:    *p,
 	}
@@ -73,13 +73,13 @@ func PublicKeyFromBytes(b []byte) (pk PublicKey, err error) {
 	f := b[0]
 	l := len(b) - 1
 	switch f {
-	case RawPublicKeyTypeED25519:
+	case RawKeyTypeED25519:
 		if l != ed25519.PublicKeySize {
 			return pk, ErrInvalidPublicKey
 		}
 		copy(pk[:], b)
 		return
-	case RawPublicKeyTypeSECP256K1:
+	case RawKeyTypeSECP256K1:
 		// TODO!
 		return pk, fmt.Errorf("SECP256K1 is not supported yet")
 	}
@@ -89,15 +89,15 @@ func PublicKeyFromBytes(b []byte) (pk PublicKey, err error) {
 
 func WrapRawKey(keyType PublicKeyType, key []byte) (pk PublicKey, err error) {
 	switch keyType {
-	case PublicKeyTypeED25519:
+	case KeyTypeED25519:
 		if len(key) != ed25519.PublicKeySize {
 			return pk, ErrInvalidPublicKey
 		}
 
-		pk[0] = RawPublicKeyTypeED25519
+		pk[0] = RawKeyTypeED25519
 		copy(pk[1:], key[0:ed25519.PublicKeySize])
 		return
-	case PublicKeyTypeSECP256K1:
+	case KeyTypeSECP256K1:
 		// TODO!
 		return pk, fmt.Errorf("SECP256K1 is not supported yet")
 	}
@@ -106,7 +106,7 @@ func WrapRawKey(keyType PublicKeyType, key []byte) (pk PublicKey, err error) {
 }
 
 func WrapED25519(key ed25519.PublicKey) PublicKey {
-	if pk, err := WrapRawKey(PublicKeyTypeED25519, key); err != nil {
+	if pk, err := WrapRawKey(KeyTypeED25519, key); err != nil {
 		panic(err)
 	} else {
 		return pk

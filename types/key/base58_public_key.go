@@ -34,7 +34,7 @@ func NewBase58PublicKey(raw string) (pk Base58PublicKey, err error) {
 		return pk, fmt.Errorf("failed to decode public key: %w", err)
 	}
 
-	pk.Type = publicKeyTypes[keyType]
+	pk.Type = keyTypes[keyType]
 	pk.Value = encodedKey
 
 	pk.pk, err = WrapRawKey(pk.Type, decoded)

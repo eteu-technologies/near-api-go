@@ -5,13 +5,13 @@ import "errors"
 type PublicKeyType string
 
 const (
-	RawPublicKeyTypeED25519 byte = iota
-	RawPublicKeyTypeSECP256K1
+	RawKeyTypeED25519 byte = iota
+	RawKeyTypeSECP256K1
 )
 
 const (
-	PublicKeyTypeED25519   PublicKeyType = "ed25519"
-	PublicKeyTypeSECP256K1 PublicKeyType = "secp256k1"
+	KeyTypeED25519   PublicKeyType = "ed25519"
+	KeyTypeSECP256K1 PublicKeyType = "secp256k1"
 )
 
 var (
@@ -21,12 +21,12 @@ var (
 	ErrInvalidPrivateKeyType = errors.New("invalid private key type")
 
 	// nolint: deadcode,varcheck,unused
-	publicKeyTypes = map[byte]PublicKeyType{
-		RawPublicKeyTypeED25519:   PublicKeyTypeED25519,
-		RawPublicKeyTypeSECP256K1: PublicKeyTypeSECP256K1,
+	keyTypes = map[byte]PublicKeyType{
+		RawKeyTypeED25519:   KeyTypeED25519,
+		RawKeyTypeSECP256K1: KeyTypeSECP256K1,
 	}
 	reverseKeyTypeMapping = map[string]byte{
-		string(PublicKeyTypeED25519):   RawPublicKeyTypeED25519,
-		string(PublicKeyTypeSECP256K1): RawPublicKeyTypeSECP256K1,
+		string(KeyTypeED25519):   RawKeyTypeED25519,
+		string(KeyTypeSECP256K1): RawKeyTypeSECP256K1,
 	}
 )
