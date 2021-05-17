@@ -63,15 +63,14 @@ func PublicKeyFromBytes(b []byte) (pk PublicKey, err error) {
 }
 
 func WrapRawKey(keyType PublicKeyType, key []byte) (pk PublicKey, err error) {
-	var buf PublicKey
 	switch keyType {
 	case PublicKeyTypeED25519:
 		if len(key) != ed25519.PublicKeySize {
 			return pk, ErrInvalidPublicKey
 		}
 
-		buf[0] = RawPublicKeyTypeED25519
-		copy(buf[1:], key[0:ed25519.PublicKeySize])
+		pk[0] = RawPublicKeyTypeED25519
+		copy(pk[1:], key[0:ed25519.PublicKeySize])
 		return
 	case PublicKeyTypeSECP256K1:
 		// TODO!
