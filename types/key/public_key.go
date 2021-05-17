@@ -44,6 +44,23 @@ func (p *PublicKey) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+func (p *PublicKey) Verify(data []byte, signature Signature) (ok bool, err error) {
+	keyType := p.TypeByte()
+	if signature.Type() != keyType {
+		return false, fmt.Errorf("cannot verify signature type %d with key type %d", signature.Type(), p.TypeByte())
+	}
+
+	switch keyType {
+	case RawPublicKeyTypeED25519:
+		ok = ed25519.Verify(ed25519.PublicKey(p.Value()), data, signature.Value())
+	case RawPublicKeyTypeSECP256K1:
+		// TODO!
+		return false, fmt.Errorf("SECP256K1 is not supported yet")
+	}
+
+	return
+}
+
 func (p *PublicKey) ToBase58PublicKey() Base58PublicKey {
 	return Base58PublicKey{
 		Type:  publicKeyTypes[p[0]],

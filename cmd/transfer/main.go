@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"crypto/ed25519"
 	"encoding/base64"
 	"encoding/json"
 	"log"
@@ -168,9 +167,10 @@ func main() {
 	}
 
 	// Try to verify the signature
-	sigHash := signedTxn.Hash()
-	if !ed25519.Verify(ed25519.PublicKey(publicRaw), sigHash[:], signedTxn.Signature[1:]) {
-		log.Fatal("failed to verify payload")
+	if ok, err := signedTxn.Verify(keyPair.PublicKey.ToPublicKey()); err != nil {
+		log.Fatalf("failed to verify payload: %s", err)
+	} else if !ok {
+		log.Fatalf("failed to verify payload: %s", "invalid signature")
 	}
 
 	// Try to parse txn

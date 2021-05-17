@@ -1,4 +1,4 @@
-package transaction
+package key
 
 import "crypto/ed25519"
 
@@ -10,4 +10,12 @@ func NewSignatureED25519(data []byte) Signature {
 	buf[0] = 0
 	copy(buf[1:], data[0:ed25519.SignatureSize])
 	return buf
+}
+
+func (s Signature) Type() byte {
+	return s[0]
+}
+
+func (s Signature) Value() []byte {
+	return s[1:]
 }
