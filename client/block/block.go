@@ -1,4 +1,4 @@
-package client
+package block
 
 import (
 	"github.com/eteu-technologies/near-api-go/types/hash"
