@@ -15,8 +15,10 @@ const (
 )
 
 var (
-	ErrInvalidPublicKey     = errors.New("invalid public key")
-	ErrInvalidPublicKeyType = errors.New("invalid public key type")
+	ErrInvalidPublicKey      = errors.New("invalid public key")
+	ErrInvalidPublicKeyType  = errors.New("invalid public key type")
+	ErrInvalidPrivateKey     = errors.New("invalid private key")
+	ErrInvalidPrivateKeyType = errors.New("invalid private key type")
 
 	// nolint: deadcode,varcheck,unused
 	publicKeyTypes = map[byte]PublicKeyType{

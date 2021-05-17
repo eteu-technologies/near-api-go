@@ -5,17 +5,14 @@ import (
 	"crypto/ed25519"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
-	"strings"
 
 	"github.com/davecgh/go-spew/spew"
 	borsh "github.com/eteu-technologies/borsh-go"
 	nearrpc "github.com/eteu-technologies/near-rpc-go"
 	oldkey "github.com/eteu-technologies/near-rpc-go/key"
 	"github.com/eteu-technologies/near-rpc-go/shim"
-	"github.com/mr-tron/base58"
 
 	"github.com/eteu-technologies/near-api-go/types"
 	"github.com/eteu-technologies/near-api-go/types/action"
@@ -33,30 +30,15 @@ var (
 	targetAccID = "mikroskeem2.testnet"
 )
 
-func loadPrivKey(key string) (ed25519.PrivateKey, ed25519.PublicKey, error) {
-	split := strings.SplitN(key, ":", 2)
-	if k := split[0]; k != "ed25519" {
-		return nil, nil, fmt.Errorf("unsupported key %s", k)
-	}
-
-	seed, err := base58.FastBase58Decoding(split[1])
-	if err != nil {
-		return nil, nil, err
-	}
-
-	priv := ed25519.PrivateKey(seed)
-	return priv, ed25519.PublicKey(priv[32:]), nil
-}
-
 func main() {
-	_ = os.Getenv
-
-	privKey, pubKey, err := loadPrivKey(secretKey)
+	keyPair, err := key.NewBase58KeyPair(secretKey)
 	if err != nil {
 		log.Fatal("failed to load private key: ", err)
 	}
 
-	thePubK := oldkey.WrapED25519PubKey(pubKey)
+	publicRaw := keyPair.PublicKey.ToPublicKey().Value()
+
+	thePubK := oldkey.WrapED25519PubKey(publicRaw)
 
 	//addr := "http://127.0.0.1:3030"
 	addr := "https://rpc.testnet.near.org"
@@ -166,9 +148,9 @@ func main() {
 	log.Println("latest block hash: ", blockHash)
 
 	// Create and sign the transaction
-	signedTxn, err := transaction.NewSignedTransaction(privKey, transaction.Transaction{
+	signedTxn, err := transaction.NewSignedTransaction(keyPair.PrivateKey, transaction.Transaction{
 		SignerID:   accID,
-		PublicKey:  key.WrapED25519(pubKey),
+		PublicKey:  keyPair.PublicKey.ToPublicKey(),
 		Nonce:      nonce + 1,
 		ReceiverID: targetAccID,
 		BlockHash:  blockHash,
@@ -187,7 +169,7 @@ func main() {
 
 	// Try to verify the signature
 	sigHash := signedTxn.Hash()
-	if !ed25519.Verify(pubKey, sigHash[:], signedTxn.Signature[1:]) {
+	if !ed25519.Verify(ed25519.PublicKey(publicRaw), sigHash[:], signedTxn.Signature[1:]) {
 		log.Fatal("failed to verify payload")
 	}
 

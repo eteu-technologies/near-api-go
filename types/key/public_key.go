@@ -16,6 +16,14 @@ func (p PublicKey) Hash() string {
 	return hex.EncodeToString(p[1:])
 }
 
+func (p PublicKey) TypeByte() byte {
+	return p[0]
+}
+
+func (p PublicKey) Value() []byte {
+	return p[1:]
+}
+
 func (p PublicKey) MarshalJSON() ([]byte, error) {
 	return json.Marshal(base58.Encode(p[:]))
 }
@@ -36,8 +44,8 @@ func (p *PublicKey) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (p *PublicKey) ToBase58PublicKey() *Base58PublicKey {
-	return &Base58PublicKey{
+func (p *PublicKey) ToBase58PublicKey() Base58PublicKey {
+	return Base58PublicKey{
 		Type:  publicKeyTypes[p[0]],
 		Value: base58.Encode(p[1:]),
 		pk:    *p,
