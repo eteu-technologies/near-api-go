@@ -51,8 +51,8 @@ func NEARToYocto(near uint64) Balance {
 }
 
 // TODO
-func YoctoToNEAR(yocto uint128.Uint128) uint64 {
-	div := yocto.Div(tenPower24)
+func YoctoToNEAR(yocto Balance) uint64 {
+	div := uint128.Uint128(yocto).Div(tenPower24)
 	if h := div.Hi; h != 0 {
 		panic(fmt.Errorf("yocto div failed, remaining: %d", h))
 	}
