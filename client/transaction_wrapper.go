@@ -113,7 +113,8 @@ func WithLatestBlock() TransactionOpt {
 // WithKeyPair sets key pair to use sign this transaction with
 func WithKeyPair(keyPair key.KeyPair) TransactionOpt {
 	return func(_ context.Context, txnCtx *transactionCtx) (err error) {
-		*txnCtx.keyPair = keyPair
+		kp := keyPair
+		txnCtx.keyPair = &kp
 		return
 	}
 }
