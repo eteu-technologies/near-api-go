@@ -19,5 +19,10 @@ func ContextWithKeyPair(ctx context.Context, keyPair key.KeyPair) context.Contex
 }
 
 func getKeyPair(ctx context.Context) *key.KeyPair {
-	return ctx.Value(keyPairCtx).(*key.KeyPair)
+	v, ok := ctx.Value(keyPairCtx).(*key.KeyPair)
+	if ok {
+		return v
+	}
+
+	return nil
 }
