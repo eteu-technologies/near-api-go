@@ -106,3 +106,7 @@ func (kp *KeyPair) Sign(data []byte) (sig Signature) {
 	}
 	return
 }
+
+func (kp *KeyPair) PrivateEncoded() string {
+	return fmt.Sprintf("%s:%s", kp.Type, base58.Encode(kp.PrivateKey))
+}
