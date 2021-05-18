@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -12,7 +11,6 @@ import (
 	"github.com/eteu-technologies/near-api-go/client"
 	"github.com/eteu-technologies/near-api-go/types"
 	"github.com/eteu-technologies/near-api-go/types/action"
-	"github.com/eteu-technologies/near-api-go/types/hash"
 	"github.com/eteu-technologies/near-api-go/types/key"
 	"github.com/eteu-technologies/near-api-go/types/transaction"
 )
@@ -56,58 +54,8 @@ func main() {
 		log.Fatal("failed to do txn: ", err)
 	}
 
-	type Status struct {
-		SuccessValue     string          `json:"SuccessValue"`
-		SuccessReceiptID string          `json:"SuccessReceiptId"`
-		Failure          json.RawMessage `json:"Failure"` // TODO
-	}
+	spew.Dump(res)
+	fmt.Println()
 
-	type ExecutionOutcomeView struct {
-		Logs        []string          `json:"logs"`
-		ReceiptIDs  []hash.CryptoHash `json:"receipt_ids"`
-		GasBurnt    types.Gas         `json:"gas_burnt"`
-		TokensBurnt types.Balance     `json:"tokens_burnt"`
-		ExecutorID  types.AccountID   `json:"executor_id"`
-		Status      Status            `json:"status"`
-	}
-
-	type MerklePathItem struct {
-		Hash      hash.CryptoHash `json:"hash"`
-		Direction string          `json:"direction"` // TODO: enum type, either 'Left' or 'Right'
-	}
-
-	type MerklePath []MerklePathItem
-
-	type ExecutionOutcomeWithIdView struct {
-		Proof     MerklePath           `json:"proof"`
-		BlockHash hash.CryptoHash      `json:"block_hash"`
-		ID        hash.CryptoHash      `json:"id"`
-		Outcome   ExecutionOutcomeView `json:"outcome"`
-	}
-
-	var txnRes struct {
-		Status      Status `json:"status"`
-		Transaction struct {
-			SignerID   types.AccountID `json:"signer_id"`
-			PublicKey  string          `json:"public_key"`
-			Nonce      types.Nonce     `json:"nonce"`
-			ReceiverID types.AccountID `json:"receiver_id"`
-			Actions    []action.Action `json:"actions"`
-			Signature  string          `json:"signature"`
-			Hash       hash.CryptoHash `json:"hash"`
-		} `json:"transaction"`
-		TransactionOutcome ExecutionOutcomeWithIdView   `json:"transaction_outcome"`
-		ReceiptsOutcome    []ExecutionOutcomeWithIdView `json:"receipts_outcome"`
-	}
-
-	if res.Error != nil {
-		fmt.Println(string(*res.Error))
-		return
-	}
-
-	if err := json.Unmarshal(res.Result, &txnRes); err != nil {
-		log.Fatal("failed to parse txn result: ", err)
-	}
-
-	spew.Dump(txnRes)
+	log.Printf("tx id: https://explorer.testnet.near.org/transactions/%s", res.Transaction.Hash)
 }
