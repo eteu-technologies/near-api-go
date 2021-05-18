@@ -3,6 +3,7 @@ package key
 import (
 	"crypto/ed25519"
 	"fmt"
+	"io"
 	"strings"
 
 	"github.com/mr-tron/base58"
@@ -13,6 +14,45 @@ type KeyPair struct {
 
 	PublicKey  Base58PublicKey
 	PrivateKey ed25519.PrivateKey
+}
+
+func GenerateKeyPair(keyType PublicKeyType, rand io.Reader) (kp KeyPair, err error) {
+	if _, ok := reverseKeyTypeMapping[string(keyType)]; !ok {
+		return kp, ErrInvalidPrivateKeyType
+	}
+
+	var rawPub PublicKey
+
+	switch keyType {
+	case KeyTypeED25519:
+		var pub ed25519.PublicKey
+		var priv ed25519.PrivateKey
+
+		pub, priv, err = ed25519.GenerateKey(rand)
+		if err != nil {
+			return
+		}
+
+		rawPub, err = WrapRawKey(keyType, pub)
+		if err != nil {
+			return
+		}
+
+		kp = CreateKeyPair(keyType, rawPub.ToBase58PublicKey(), priv)
+	case KeyTypeSECP256K1:
+		// TODO
+		return kp, fmt.Errorf("SECP256K1 is not supported yet")
+	}
+
+	return
+}
+
+func CreateKeyPair(keyType PublicKeyType, pub Base58PublicKey, priv ed25519.PrivateKey) KeyPair {
+	return KeyPair{
+		Type:       keyType,
+		PublicKey:  pub,
+		PrivateKey: priv,
+	}
 }
 
 func NewBase58KeyPair(raw string) (kp KeyPair, err error) {
@@ -43,15 +83,15 @@ func NewBase58KeyPair(raw string) (kp KeyPair, err error) {
 		return kp, ErrInvalidPrivateKey
 	}
 
-	kp.PrivateKey = ed25519.PrivateKey(decoded)
-	pubKey := kp.PrivateKey[32:] // See ed25519.Public()
+	var pubKey PublicKey
 
-	kp.Type = keyTypes[keyType]
-	if pubKey, err := WrapRawKey(kp.Type, pubKey); err != nil {
-		return kp, err
-	} else {
-		kp.PublicKey = pubKey.ToBase58PublicKey()
+	privKey := ed25519.PrivateKey(decoded)
+	pubKey, err = WrapRawKey(kp.Type, privKey[32:]) // See ed25519.Public()
+	if err != nil {
+		return
 	}
+
+	kp = CreateKeyPair(keyTypes[keyType], pubKey.ToBase58PublicKey(), privKey)
 
 	return
 }
