@@ -2,6 +2,8 @@ package client
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 
 	"github.com/eteu-technologies/near-api-go/client/block"
 	"github.com/eteu-technologies/near-api-go/jsonrpc"
@@ -10,23 +12,42 @@ import (
 
 // TODO: decode response
 // https://docs.near.org/docs/develop/front-end/rpc#view-access-key
-func (c *Client) AccessKeyView(ctx context.Context, accountID string, publicKey key.Base58PublicKey, block block.BlockCharacteristic) (res jsonrpc.JSONRPCResponse, err error) {
+func (c *Client) AccessKeyView(ctx context.Context, accountID string, publicKey key.Base58PublicKey, block block.BlockCharacteristic) (resp AccessKeyView, err error) {
+	var res jsonrpc.JSONRPCResponse
 	res, err = c.doRPC(ctx, "query", block, map[string]interface{}{
 		"request_type": "view_access_key",
 		"account_id":   accountID,
 		"public_key":   publicKey,
 	})
 
+	if res.Error != nil {
+		err = fmt.Errorf("%s", res.Error)
+		return
+	}
+
+	if err = json.Unmarshal(res.Result, &resp); err != nil {
+		return
+	}
+
 	return
 }
 
-// TODO: decode response
 // https://docs.near.org/docs/develop/front-end/rpc#view-access-key-list
-func (c *Client) AccessKeyViewList(ctx context.Context, accountID string, block block.BlockCharacteristic) (res jsonrpc.JSONRPCResponse, err error) {
+func (c *Client) AccessKeyViewList(ctx context.Context, accountID string, block block.BlockCharacteristic) (resp AccessKeyList, err error) {
+	var res jsonrpc.JSONRPCResponse
 	res, err = c.doRPC(ctx, "query", block, map[string]interface{}{
 		"request_type": "view_access_key_list",
 		"account_id":   accountID,
 	})
+
+	if res.Error != nil {
+		err = fmt.Errorf("%s", res.Error)
+		return
+	}
+
+	if err = json.Unmarshal(res.Result, &resp); err != nil {
+		return
+	}
 
 	return
 }
