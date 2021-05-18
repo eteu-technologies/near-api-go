@@ -2,13 +2,10 @@ package main
 
 import (
 	"context"
-	"crypto/ed25519"
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
-	"strings"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/eteu-technologies/borsh-go"
@@ -20,7 +17,6 @@ import (
 	nearrpc "github.com/eteu-technologies/near-rpc-go"
 	oldkey "github.com/eteu-technologies/near-rpc-go/key"
 	"github.com/eteu-technologies/near-rpc-go/shim"
-	"github.com/mr-tron/base58"
 )
 
 var (
@@ -29,28 +25,14 @@ var (
 	targetAccID = "dev-1621263077598-74843909627468"
 )
 
-func loadPrivKey(key string) (ed25519.PrivateKey, ed25519.PublicKey, error) {
-	split := strings.SplitN(key, ":", 2)
-	if k := split[0]; k != "ed25519" {
-		return nil, nil, fmt.Errorf("unsupported key %s", k)
-	}
-
-	seed, err := base58.FastBase58Decoding(split[1])
-	if err != nil {
-		return nil, nil, err
-	}
-
-	priv := ed25519.PrivateKey(seed)
-	return priv, ed25519.PublicKey(priv[32:]), nil
-}
-
 func main() {
-	privKey, pubKey, err := loadPrivKey(secretKey)
+	keyPair, err := key.NewBase58KeyPair(secretKey)
 	if err != nil {
 		log.Fatal("failed to load private key: ", err)
 	}
 
-	thePubK := oldkey.WrapED25519PubKey(pubKey)
+	publicRaw := keyPair.PublicKey.ToPublicKey().Value()
+	thePubK := oldkey.WrapED25519PubKey(publicRaw)
 
 	addr := "https://rpc.testnet.near.org"
 
@@ -110,7 +92,7 @@ func main() {
 	// Create a transaction
 	txn := transaction.Transaction{
 		SignerID:   accID,
-		PublicKey:  key.WrapED25519(pubKey),
+		PublicKey:  keyPair.PublicKey.ToPublicKey(),
 		Nonce:      nonce + 1,
 		ReceiverID: targetAccID,
 		BlockHash:  blockHash,
@@ -120,7 +102,7 @@ func main() {
 	}
 
 	// Sign the transaction
-	signedTxn, err := transaction.NewSignedTransaction(privKey, txn)
+	signedTxn, err := transaction.NewSignedTransaction(keyPair, txn)
 	if err != nil {
 		log.Fatal("failed to create signed txn: ", err)
 	}
@@ -131,9 +113,10 @@ func main() {
 	}
 
 	// Try to verify the signature
-	sigHash := signedTxn.Hash()
-	if !ed25519.Verify(pubKey, sigHash[:], signedTxn.Signature[1:]) {
-		log.Fatal("failed to verify payload")
+	if ok, err := signedTxn.Verify(keyPair.PublicKey.ToPublicKey()); err != nil {
+		log.Fatalf("failed to verify payload: %s", err)
+	} else if !ok {
+		log.Fatalf("failed to verify payload: %s", "invalid signature")
 	}
 
 	// Try to parse txn
