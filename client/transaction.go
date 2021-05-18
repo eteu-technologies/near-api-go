@@ -8,7 +8,7 @@ import (
 
 // TODO: decode response
 // https://docs.near.org/docs/develop/front-end/rpc#send-transaction-async
-func (c *Client) TransactionSend(ctx context.Context, signedTxnBase64 string) (res jsonrpc.JSONRPCResponse, err error) {
+func (c *Client) RPCTransactionSend(ctx context.Context, signedTxnBase64 string) (res jsonrpc.JSONRPCResponse, err error) {
 	res, err = c.doRPC(ctx, "broadcast_tx_async", nil, []string{signedTxnBase64})
 
 	return
@@ -16,7 +16,7 @@ func (c *Client) TransactionSend(ctx context.Context, signedTxnBase64 string) (r
 
 // TODO: decode response
 // https://docs.near.org/docs/develop/front-end/rpc#send-transaction-await
-func (c *Client) TransactionSendAwait(ctx context.Context, signedTxnBase64 string) (res jsonrpc.JSONRPCResponse, err error) {
+func (c *Client) RPCTransactionSendAwait(ctx context.Context, signedTxnBase64 string) (res jsonrpc.JSONRPCResponse, err error) {
 	res, err = c.doRPC(ctx, "broadcast_tx_commit", nil, []string{signedTxnBase64})
 
 	return
