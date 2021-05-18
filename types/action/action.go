@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/eteu-technologies/borsh-go"
-	"lukechampine.com/uint128"
+	"github.com/eteu-technologies/golang-uint128"
 
 	"github.com/eteu-technologies/near-api-go/types"
 	"github.com/eteu-technologies/near-api-go/types/key"
