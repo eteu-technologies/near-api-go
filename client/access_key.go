@@ -19,9 +19,12 @@ func (c *Client) AccessKeyView(ctx context.Context, accountID string, publicKey 
 		"account_id":   accountID,
 		"public_key":   publicKey,
 	})
+	if err != nil {
+		return
+	}
 
 	if res.Error != nil {
-		err = fmt.Errorf("%s", res.Error)
+		err = fmt.Errorf("%s", string(*res.Error))
 		return
 	}
 
@@ -39,9 +42,12 @@ func (c *Client) AccessKeyViewList(ctx context.Context, accountID string, block 
 		"request_type": "view_access_key_list",
 		"account_id":   accountID,
 	})
+	if err != nil {
+		return
+	}
 
 	if res.Error != nil {
-		err = fmt.Errorf("%s", res.Error)
+		err = fmt.Errorf("%s", string(*res.Error))
 		return
 	}
 
