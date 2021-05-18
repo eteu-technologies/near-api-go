@@ -42,19 +42,12 @@ func main() {
 	ctx := context.Background()
 
 	// Query this key
-	accessKeyResp, err := rpc.AccessKeyView(ctx, accID, keyPair.PublicKey, block.FinalityFinal())
+	accessKeyView, err := rpc.AccessKeyView(ctx, accID, keyPair.PublicKey, block.FinalityFinal())
 	if err != nil {
 		log.Fatal("failed to query access key: ", err)
 	}
 
-	var accessKey struct {
-		Nonce types.Nonce `json:"nonce"`
-	}
-	if err := json.Unmarshal(accessKeyResp.Result, &accessKey); err != nil {
-		log.Fatal("failed to parse access key query response: ", err)
-	}
-
-	nonce := accessKey.Nonce
+	nonce := accessKeyView.Nonce
 
 	// Query latest block
 	blockRes, err := rpc.BlockDetails(ctx, block.FinalityFinal())
@@ -94,7 +87,7 @@ func main() {
 	txn := transaction.Transaction{
 		SignerID:   accID,
 		PublicKey:  keyPair.PublicKey.ToPublicKey(),
-		Nonce:      uint64(nonce) + 1,
+		Nonce:      nonce + 1,
 		ReceiverID: targetAccID,
 		BlockHash:  blockHash,
 		Actions: []action.Action{
@@ -127,7 +120,7 @@ func main() {
 	}
 
 	stxnBlob := base64.StdEncoding.EncodeToString(stxnSerialized)
-	res, err := rpc.TransactionSendAwait(ctx, stxnBlob)
+	res, err := rpc.RPCTransactionSendAwait(ctx, stxnBlob)
 	if err != nil {
 		log.Fatal("failed to do txn: ", err)
 	}
