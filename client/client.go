@@ -20,6 +20,10 @@ func NewClient(networkAddr string) (client Client, err error) {
 	return
 }
 
+func (c *Client) NetworkAddr() string {
+	return c.RPCClient.URL
+}
+
 func (c *Client) doRPC(ctx context.Context, method string, block block.BlockCharacteristic, params interface{}) (res jsonrpc.JSONRPCResponse, err error) {
 	if block != nil {
 		if mapv, ok := params.(map[string]interface{}); ok {
