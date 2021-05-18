@@ -8,3 +8,7 @@ type Gas uint64
 
 // Nonce for transactions.
 type Nonce uint64
+
+// Time nanoseconds fit into uint128. Using existing Balance type which
+// implements JSON marshal/unmarshal
+type TimeNanos = Balance
