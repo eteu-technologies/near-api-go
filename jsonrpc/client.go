@@ -34,7 +34,6 @@ type JSONRPCClient struct {
 	URL string
 
 	client    *http.Client
-	url       *url.URL
 	nextReqId uint64
 }
 
@@ -44,6 +43,7 @@ func NewClient(networkAddr string) (client JSONRPCClient, err error) {
 		return
 	}
 
+	client.client = new(http.Client)
 	client.URL = networkAddr
 	atomic.StoreUint64(&client.nextReqId, 0)
 
