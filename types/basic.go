@@ -12,3 +12,7 @@ type Nonce = uint64
 // Time nanoseconds fit into uint128. Using existing Balance type which
 // implements JSON marshal/unmarshal
 type TimeNanos = Balance
+
+// Some more aliases for blocks...
+type BlockHeight = uint64
+type ShardID = uint64
