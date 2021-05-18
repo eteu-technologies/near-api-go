@@ -8,7 +8,7 @@ import (
 type ExcecutionOutcome struct {
 	Logs        []string
 	ReceiptIds  []hash.CryptoHash
-	GasBurnt    uint64 // TODO: panic: reflect.Set: value of type uint64 is not assignable to type types.Gas
+	GasBurnt    types.Gas
 	TokensBurnt types.Balance
 	ExecutorID  types.AccountID
 	Status      ExecutionStatus

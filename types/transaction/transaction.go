@@ -3,16 +3,17 @@ package transaction
 import (
 	"github.com/eteu-technologies/borsh-go"
 
+	"github.com/eteu-technologies/near-api-go/types"
 	"github.com/eteu-technologies/near-api-go/types/action"
 	"github.com/eteu-technologies/near-api-go/types/hash"
 	"github.com/eteu-technologies/near-api-go/types/key"
 )
 
 type Transaction struct {
-	SignerID   string
+	SignerID   types.AccountID
 	PublicKey  key.PublicKey
-	Nonce      uint64
-	ReceiverID string
+	Nonce      types.Nonce
+	ReceiverID types.AccountID
 	BlockHash  hash.CryptoHash
 	Actions    []action.Action
 }
