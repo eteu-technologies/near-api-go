@@ -85,13 +85,15 @@ func NewBase58KeyPair(raw string) (kp KeyPair, err error) {
 
 	var pubKey PublicKey
 
+	theKeyType := keyTypes[keyType]
 	privKey := ed25519.PrivateKey(decoded)
-	pubKey, err = WrapRawKey(kp.Type, privKey[32:]) // See ed25519.Public()
+	pubKey, err = WrapRawKey(theKeyType, privKey[32:]) // See ed25519.Public()
 	if err != nil {
+		println("wraprawkey failed")
 		return
 	}
 
-	kp = CreateKeyPair(keyTypes[keyType], pubKey.ToBase58PublicKey(), privKey)
+	kp = CreateKeyPair(theKeyType, pubKey.ToBase58PublicKey(), privKey)
 
 	return
 }
