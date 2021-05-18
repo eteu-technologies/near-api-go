@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
@@ -49,4 +50,7 @@ func main() {
 	}
 
 	spew.Dump(res)
+	fmt.Println()
+
+	log.Printf("tx id: https://explorer.testnet.near.org/transactions/%s", res.Transaction.Hash)
 }
