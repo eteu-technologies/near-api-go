@@ -1,6 +1,9 @@
 package transaction
 
 import (
+	"encoding/base64"
+
+	"github.com/eteu-technologies/borsh-go"
 	"github.com/eteu-technologies/near-api-go/types/hash"
 	"github.com/eteu-technologies/near-api-go/types/key"
 )
@@ -41,4 +44,17 @@ func (st *SignedTransaction) Verify(pubKey key.PublicKey) (ok bool, err error) {
 	}
 
 	return pubKey.Verify(txnHash[:], st.Signature)
+}
+
+func (st SignedTransaction) Serialize() (serialized string, err error) {
+	var blob []byte
+
+	blob, err = borsh.Serialize(st)
+	if err != nil {
+		return
+	}
+
+	serialized = base64.StdEncoding.EncodeToString(blob)
+
+	return
 }
