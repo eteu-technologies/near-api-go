@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/eteu-technologies/near-api-go/client/block"
-	"github.com/eteu-technologies/near-api-go/jsonrpc"
 	"github.com/eteu-technologies/near-api-go/types"
 	"github.com/eteu-technologies/near-api-go/types/hash"
 	"github.com/eteu-technologies/near-api-go/types/key"
@@ -62,9 +61,8 @@ func (c *Client) prepareTransaction(ctx context.Context, txn transaction.Transac
 	return
 }
 
-// TODO: decode response
 // https://docs.near.org/docs/develop/front-end/rpc#send-transaction-async
-func (c *Client) TransactionSend(ctx context.Context, txn transaction.Transaction, txnOpts ...TransactionOpt) (res jsonrpc.JSONRPCResponse, err error) {
+func (c *Client) TransactionSend(ctx context.Context, txn transaction.Transaction, txnOpts ...TransactionOpt) (res hash.CryptoHash, err error) {
 	ctx2, blob, err := c.prepareTransaction(ctx, txn, txnOpts...)
 	if err != nil {
 		return
@@ -72,9 +70,8 @@ func (c *Client) TransactionSend(ctx context.Context, txn transaction.Transactio
 	return c.RPCTransactionSend(ctx2, blob)
 }
 
-// TODO: decode response
 // https://docs.near.org/docs/develop/front-end/rpc#send-transaction-await
-func (c *Client) TransactionSendAwait(ctx context.Context, txn transaction.Transaction, txnOpts ...TransactionOpt) (res jsonrpc.JSONRPCResponse, err error) {
+func (c *Client) TransactionSendAwait(ctx context.Context, txn transaction.Transaction, txnOpts ...TransactionOpt) (res FinalExecutionOutcomeView, err error) {
 	ctx2, blob, err := c.prepareTransaction(ctx, txn, txnOpts...)
 	if err != nil {
 		return
