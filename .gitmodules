@@ -1,6 +1,3 @@
-[submodule "near-rpc-go"]
-	path = near-rpc-go
-	url = git@github.com:eteu-technologies/near-rpc-go.git
 [submodule "borsh-go"]
 	path = borsh-go
 	url = git@github.com:eteu-technologies/borsh-go.git

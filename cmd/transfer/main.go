@@ -9,10 +9,9 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	borsh "github.com/eteu-technologies/borsh-go"
-	nearrpc "github.com/eteu-technologies/near-rpc-go"
-	oldkey "github.com/eteu-technologies/near-rpc-go/key"
-	"github.com/eteu-technologies/near-rpc-go/shim"
 
+	"github.com/eteu-technologies/near-api-go/client"
+	"github.com/eteu-technologies/near-api-go/client/block"
 	"github.com/eteu-technologies/near-api-go/types"
 	"github.com/eteu-technologies/near-api-go/types/action"
 	"github.com/eteu-technologies/near-api-go/types/hash"
@@ -35,34 +34,35 @@ func main() {
 		log.Fatal("failed to load private key: ", err)
 	}
 
-	publicRaw := keyPair.PublicKey.ToPublicKey().Value()
-
-	thePubK := oldkey.WrapED25519PubKey(publicRaw)
-
 	//addr := "http://127.0.0.1:3030"
 	addr := "https://rpc.testnet.near.org"
 
-	shim.ShimURL = addr
-
-	rpc, err := nearrpc.NewClient(addr)
+	rpc, err := client.NewClient(addr)
 	if err != nil {
 		log.Fatal("failed to create rpc client: ", err)
 	}
 
-	log.Printf("near network: %s", rpc.NetworkAddr)
+	log.Printf("near network: %s", rpc.NetworkAddr())
 
 	ctx := context.Background()
 
 	// Query this key
-	accessKey, err := rpc.AccessKeyView(ctx, nearrpc.FinalityFinal(), accID, thePubK)
+	accessKeyResp, err := rpc.AccessKeyView(ctx, accID, keyPair.PublicKey, block.FinalityFinal())
 	if err != nil {
 		log.Fatal("failed to query access key: ", err)
+	}
+
+	var accessKey struct {
+		Nonce types.Nonce `json:"nonce"`
+	}
+	if err := json.Unmarshal(accessKeyResp.Result, &accessKey); err != nil {
+		log.Fatal("failed to parse access key query response: ", err)
 	}
 
 	nonce := accessKey.Nonce
 
 	// Query latest block
-	blockRes, err := rpc.BlockDetails(ctx, nearrpc.FinalityFinal())
+	blockRes, err := rpc.BlockDetails(ctx, block.FinalityFinal())
 	if err != nil {
 		log.Fatal("failed to query latest block: ", err)
 	}
@@ -150,7 +150,7 @@ func main() {
 	signedTxn, err := transaction.NewSignedTransaction(keyPair, transaction.Transaction{
 		SignerID:   accID,
 		PublicKey:  keyPair.PublicKey.ToPublicKey(),
-		Nonce:      nonce + 1,
+		Nonce:      uint64(nonce) + 1,
 		ReceiverID: targetAccID,
 		BlockHash:  blockHash,
 		Actions: []action.Action{
