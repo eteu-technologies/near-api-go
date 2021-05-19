@@ -2,6 +2,7 @@ package key
 
 import (
 	"crypto/ed25519"
+	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
@@ -111,4 +112,14 @@ func (kp *KeyPair) Sign(data []byte) (sig Signature) {
 
 func (kp *KeyPair) PrivateEncoded() string {
 	return fmt.Sprintf("%s:%s", kp.Type, base58.Encode(kp.PrivateKey))
+}
+
+func (kp *KeyPair) UnmarshalJSON(b []byte) (err error) {
+	var s string
+	if err = json.Unmarshal(b, &s); err != nil {
+		return
+	}
+
+	*kp, err = NewBase58KeyPair(s)
+	return
 }
