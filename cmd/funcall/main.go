@@ -19,12 +19,6 @@ import (
 	"github.com/eteu-technologies/near-api-go/pkg/types/transaction"
 )
 
-var (
-	accID       = "mikroskeem.testnet"
-	secretKey   = os.Getenv("NEAR_PRIV_KEY")
-	targetAccID = "dev-1621263077598-74843909627468"
-)
-
 func main() {
 	app := &cli.App{
 		Name:  "funcall",
