@@ -6,7 +6,7 @@ import (
 	"math"
 	"math/big"
 
-	"github.com/eteu-technologies/golang-uint128"
+	uint128 "github.com/eteu-technologies/golang-uint128"
 )
 
 var (
@@ -63,4 +63,36 @@ func YoctoToNEAR(yocto Balance) uint64 {
 	}
 
 	return div.Lo
+}
+
+func scaleToYocto(f *big.Float) (r *big.Int) {
+	// Convert reference 1 NEAR to big.Float
+	base := new(big.Float).SetPrec(128).SetInt(uint128.Uint128(NEARToYocto(1)).Big())
+
+	// Multiply base using the supplied float
+	// XXX: small precision issues here will haunt me forever
+	bigf2 := new(big.Float).SetPrec(128).SetMode(big.ToZero).Mul(base, f)
+
+	// Convert it to big.Int
+	r, _ = bigf2.Int(nil)
+	return
+}
+
+// TODO
+func BalanceFromFloat(f float64) (bal Balance) {
+	bigf := big.NewFloat(f)
+	bal = Balance(uint128.FromBig(scaleToYocto(bigf)))
+	return
+}
+
+// TODO
+func BalanceFromString(s string) (bal Balance, err error) {
+	var bigf *big.Float
+	bigf, _, err = big.ParseFloat(s, 10, 128, big.ToZero)
+	if err != nil {
+		return
+	}
+
+	bal = Balance(uint128.FromBig(scaleToYocto(bigf)))
+	return
 }
