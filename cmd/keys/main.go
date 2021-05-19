@@ -52,7 +52,7 @@ func entrypoint(cctx *cli.Context) (err error) {
 
 	rpc, err := client.NewClient(network.NodeURL)
 	if err != nil {
-		log.Fatal("failed to create rpc client: ", err)
+		return fmt.Errorf("failed to create rpc client: %w", err)
 	}
 
 	log.Printf("near network: %s", rpc.NetworkAddr())
@@ -61,19 +61,19 @@ func entrypoint(cctx *cli.Context) (err error) {
 	if rawKey := cctx.String("key"); cctx.IsSet("key") {
 		pubKey, err := key.NewBase58PublicKey(rawKey)
 		if err != nil {
-			log.Fatal("failed to parse access pubkey")
+			return fmt.Errorf("failed to parse access pubkey: %w", err)
 		}
 
 		accessKeyViewResp, err := rpc.AccessKeyView(ctx, cctx.String("account"), pubKey, block.FinalityFinal())
 		if err != nil {
-			log.Fatal("failed to query access key list: ", err)
+			return fmt.Errorf("failed to query access key: %w", err)
 		}
 
 		spew.Dump(accessKeyViewResp)
 	} else {
 		accessKeyViewListResp, err := rpc.AccessKeyViewList(ctx, cctx.String("account"), block.FinalityFinal())
 		if err != nil {
-			log.Fatal("failed to query access key list: ", err)
+			return fmt.Errorf("failed to query access key list: %w", err)
 		}
 
 		spew.Dump(accessKeyViewListResp)
