@@ -41,9 +41,10 @@ func main() {
 				Usage:    "Amount of NEAR to send",
 			},
 			&cli.StringFlag{
-				Name:  "network",
-				Usage: "NEAR network",
-				Value: "testnet",
+				Name:    "network",
+				Usage:   "NEAR network",
+				Value:   "testnet",
+				EnvVars: []string{"NEAR_ENV"},
 			},
 		},
 		Action: entrypoint,
