@@ -8,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/urfave/cli/v2"
 
 	"github.com/eteu-technologies/near-api-go/pkg/client"
@@ -98,9 +97,6 @@ func entrypoint(cctx *cli.Context) (err error) {
 	if err != nil {
 		return fmt.Errorf("failed to do txn: %w", err)
 	}
-
-	spew.Dump(res)
-	fmt.Println()
 
 	log.Printf("tx url: %s/transactions/%s", network.ExplorerURL, res.Transaction.Hash)
 	return
