@@ -45,7 +45,7 @@ func (c *Client) prepareTransaction(ctx context.Context, txn transaction.Transac
 	// Query the access key nonce, if not specified
 	if !txnCtx.keyNonceSet {
 		var accessKey AccessKeyView
-		accessKey, err = c.AccessKeyView(ctx2, txnCtx.txn.SignerID, *&txnCtx.keyPair.PublicKey, block.FinalityFinal())
+		accessKey, err = c.AccessKeyView(ctx2, txnCtx.txn.SignerID, txnCtx.keyPair.PublicKey, block.FinalityFinal())
 		if err != nil {
 			return
 		}
