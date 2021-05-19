@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
-	"github.com/davecgh/go-spew/spew"
-	"github.com/eteu-technologies/near-api-go/client"
-	"github.com/eteu-technologies/near-api-go/client/block"
-	"github.com/eteu-technologies/near-api-go/types/key"
 	"log"
+
+	"github.com/davecgh/go-spew/spew"
+
+	"github.com/eteu-technologies/near-api-go/pkg/client"
+	"github.com/eteu-technologies/near-api-go/pkg/client/block"
+	"github.com/eteu-technologies/near-api-go/pkg/types/key"
 )
 
 var (

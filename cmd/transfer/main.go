@@ -11,12 +11,12 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/urfave/cli/v2"
 
-	"github.com/eteu-technologies/near-api-go/client"
-	"github.com/eteu-technologies/near-api-go/config"
-	"github.com/eteu-technologies/near-api-go/types"
-	"github.com/eteu-technologies/near-api-go/types/action"
-	"github.com/eteu-technologies/near-api-go/types/key"
-	"github.com/eteu-technologies/near-api-go/types/transaction"
+	"github.com/eteu-technologies/near-api-go/pkg/client"
+	"github.com/eteu-technologies/near-api-go/pkg/config"
+	"github.com/eteu-technologies/near-api-go/pkg/types"
+	"github.com/eteu-technologies/near-api-go/pkg/types/action"
+	"github.com/eteu-technologies/near-api-go/pkg/types/key"
+	"github.com/eteu-technologies/near-api-go/pkg/types/transaction"
 )
 
 func main() {
