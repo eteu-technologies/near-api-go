@@ -2,60 +2,139 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/urfave/cli/v2"
 
 	"github.com/eteu-technologies/near-api-go/client"
+	"github.com/eteu-technologies/near-api-go/config"
 	"github.com/eteu-technologies/near-api-go/types"
 	"github.com/eteu-technologies/near-api-go/types/action"
 	"github.com/eteu-technologies/near-api-go/types/key"
 	"github.com/eteu-technologies/near-api-go/types/transaction"
 )
 
-var (
-	// accID       = "node0"
-	// secretKey   = "ed25519:3D4YudUQRE39Lc4JHghuB5WM8kbgDDa34mnrEP5DdTApVH81af7e2dWgNPEaiQfdJnZq1CNPp5im4Rg5b733oiMP"
-	// targetAccID = "node1"
-	accID       = "mikroskeem.testnet"
-	secretKey   = os.Getenv("NEAR_PRIV_KEY")
-	targetAccID = "mikroskeem2.testnet"
-)
-
 func main() {
-	keyPair, err := key.NewBase58KeyPair(secretKey)
-	if err != nil {
-		log.Fatal("failed to load private key: ", err)
+	app := &cli.App{
+		Name:  "transfer",
+		Usage: "Transfer NEAR between accounts",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:     "from",
+				Required: true,
+				Usage:    "Sender account id",
+			},
+			&cli.StringFlag{
+				Name:     "to",
+				Aliases:  []string{"recipient"},
+				Required: true,
+				Usage:    "Recipient account id",
+			},
+			&cli.StringFlag{
+				Name:     "amount",
+				Required: true,
+				Usage:    "Amount of NEAR to send",
+			},
+			&cli.StringFlag{
+				Name:  "network",
+				Usage: "NEAR network",
+				Value: "testnet",
+			},
+		},
+		Action: entrypoint,
 	}
 
-	//addr := "http://127.0.0.1:3030"
-	addr := "https://rpc.testnet.near.org"
+	if err := app.Run(os.Args); err != nil {
+		log.Fatal(err)
+	}
+}
 
-	rpc, err := client.NewClient(addr)
+func entrypoint(cctx *cli.Context) (err error) {
+	networkID := cctx.String("network")
+	senderID := cctx.String("from")
+	recipientID := cctx.String("to")
+	amountValue := cctx.String("amount")
+
+	var amount types.Balance
+
+	amount, err = types.BalanceFromString(amountValue)
 	if err != nil {
-		log.Fatal("failed to create rpc client: ", err)
+		return fmt.Errorf("failed to parse amount '%s': %w", amountValue, err)
+	}
+
+	network, ok := config.Networks[networkID]
+	if !ok {
+		return fmt.Errorf("unknown network '%s'", networkID)
+	}
+
+	keyPair, err := resolveCredentials(networkID, senderID)
+	if err != nil {
+		return fmt.Errorf("failed to load private key: %w", err)
+	}
+
+	rpc, err := client.NewClient(network.NodeURL)
+	if err != nil {
+		return fmt.Errorf("failed to create rpc client: %w", err)
 	}
 
 	log.Printf("near network: %s", rpc.NetworkAddr())
 
 	ctx := client.ContextWithKeyPair(context.Background(), keyPair)
 	txn := transaction.Transaction{
-		SignerID:   accID,
-		ReceiverID: targetAccID,
+		SignerID:   senderID,
+		ReceiverID: recipientID,
 		Actions: []action.Action{
-			action.NewTransfer(types.NEARToYocto(1).Div64(1000)),
+			action.NewTransfer(amount),
 		},
 	}
 
 	res, err := rpc.TransactionSendAwait(ctx, txn, client.WithLatestBlock())
 	if err != nil {
-		log.Fatal("failed to do txn: ", err)
+		return fmt.Errorf("failed to do txn: %w", err)
 	}
 
 	spew.Dump(res)
 	fmt.Println()
 
-	log.Printf("tx id: https://explorer.testnet.near.org/transactions/%s", res.Transaction.Hash)
+	log.Printf("tx url: %s/transactions/%s", network.ExplorerURL, res.Transaction.Hash)
+	return
+}
+
+func resolveCredentials(networkName string, id types.AccountID) (kp key.KeyPair, err error) {
+	var creds struct {
+		AccountID  types.AccountID     `json:"account_id"`
+		PublicKey  key.Base58PublicKey `json:"public_key"`
+		PrivateKey key.KeyPair         `json:"private_key"`
+	}
+
+	var home string
+	home, err = os.UserHomeDir()
+	if err != nil {
+		return
+	}
+
+	credsFile := filepath.Join(home, ".near-credentials", networkName, fmt.Sprintf("%s.json", id))
+
+	var cf *os.File
+	if cf, err = os.Open(credsFile); err != nil {
+		return
+	}
+	defer cf.Close()
+
+	if err = json.NewDecoder(cf).Decode(&creds); err != nil {
+		return
+	}
+
+	if creds.PublicKey.String() != creds.PrivateKey.PublicKey.String() {
+		err = fmt.Errorf("inconsistent public key, %s != %s", creds.PublicKey.String(), creds.PrivateKey.PublicKey.String())
+		return
+	}
+	kp = creds.PrivateKey
+
+	return
 }

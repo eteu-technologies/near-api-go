@@ -8,6 +8,7 @@ require (
 	github.com/eteu-technologies/golang-uint128 v1.1.2-eteu
 	github.com/google/gofuzz v1.2.0
 	github.com/mr-tron/base58 v1.2.0
+	github.com/urfave/cli/v2 v2.3.0
 )
 
 replace github.com/eteu-technologies/borsh-go => ./borsh-go
