@@ -3,6 +3,9 @@ github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d h1:U+s90UTSY
 github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d/go.mod h1:maD7wRr/U5Z6m/iR4s+kqSMx2CaBsrgA7czyZG/E6dU=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
+github.com/eteu-technologies/borsh-go v0.3.2 h1:2c4H5yNtgzvgiYOZbN/DKE+iFjS6hK0QibEvw/5ELsI=
+github.com/eteu-technologies/borsh-go v0.3.2/go.mod h1:WK4tVIecqMGB9WXrvULSeEe3POIXw+ZUFWV4HRTUCZA=
+github.com/eteu-technologies/golang-uint128 v1.1.1-eteu/go.mod h1:5Vr5yDsJV9eBl44ziSgt1xDZbVfJv4+IpqnUf0wa8t4=
 github.com/eteu-technologies/golang-uint128 v1.1.2-eteu h1:hEc9sN76qbV0l40GUq2lMyBDXZlTkts7cLCd+3vHkao=
 github.com/eteu-technologies/golang-uint128 v1.1.2-eteu/go.mod h1:5Vr5yDsJV9eBl44ziSgt1xDZbVfJv4+IpqnUf0wa8t4=
 github.com/google/gofuzz v1.2.0 h1:xRy4A+RhZaiKjJ1bPfwQ8sedCA+YS2YcCHW6ec7JMi0=
