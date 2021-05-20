@@ -5,11 +5,12 @@ import (
 
 	"github.com/eteu-technologies/near-api-go/pkg/client/block"
 	"github.com/eteu-technologies/near-api-go/pkg/jsonrpc"
+	"github.com/eteu-technologies/near-api-go/pkg/types"
 )
 
 // TODO: decode response
 // https://docs.near.org/docs/develop/front-end/rpc#view-contract-state
-func (c *Client) ContractViewState(ctx context.Context, accountID string, prefixBase64 string, block block.BlockCharacteristic) (res jsonrpc.JSONRPCResponse, err error) {
+func (c *Client) ContractViewState(ctx context.Context, accountID types.AccountID, prefixBase64 string, block block.BlockCharacteristic) (res jsonrpc.JSONRPCResponse, err error) {
 	res, err = c.doRPC(ctx, "query", block, map[string]interface{}{
 		"request_type":  "view_state",
 		"account_id":    accountID,
@@ -21,7 +22,7 @@ func (c *Client) ContractViewState(ctx context.Context, accountID string, prefix
 
 // TODO: decode response
 // https://docs.near.org/docs/develop/front-end/rpc#view-contract-state-changes
-func (c *Client) ContractViewStateChanges(ctx context.Context, accountIDs []string, keyPrefixBase64 string, block block.BlockCharacteristic) (res jsonrpc.JSONRPCResponse, err error) {
+func (c *Client) ContractViewStateChanges(ctx context.Context, accountIDs []types.AccountID, keyPrefixBase64 string, block block.BlockCharacteristic) (res jsonrpc.JSONRPCResponse, err error) {
 	res, err = c.doRPC(ctx, "EXPERIMENTAL_changes", block, map[string]interface{}{
 		"changes_type":      "data_changes",
 		"account_ids":       accountIDs,
@@ -33,7 +34,7 @@ func (c *Client) ContractViewStateChanges(ctx context.Context, accountIDs []stri
 
 // TODO: decode response
 // https://docs.near.org/docs/develop/front-end/rpc#view-contract-code-changes
-func (c *Client) ContractViewCodeChanges(ctx context.Context, accountIDs []string, block block.BlockCharacteristic) (res jsonrpc.JSONRPCResponse, err error) {
+func (c *Client) ContractViewCodeChanges(ctx context.Context, accountIDs []types.AccountID, block block.BlockCharacteristic) (res jsonrpc.JSONRPCResponse, err error) {
 	res, err = c.doRPC(ctx, "EXPERIMENTAL_changes", block, map[string]interface{}{
 		"changes_type": "contract_code_changes",
 		"account_ids":  accountIDs,

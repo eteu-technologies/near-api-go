@@ -7,12 +7,13 @@ import (
 
 	"github.com/eteu-technologies/near-api-go/pkg/client/block"
 	"github.com/eteu-technologies/near-api-go/pkg/jsonrpc"
+	"github.com/eteu-technologies/near-api-go/pkg/types"
 	"github.com/eteu-technologies/near-api-go/pkg/types/key"
 )
 
 // TODO: decode response
 // https://docs.near.org/docs/develop/front-end/rpc#view-access-key
-func (c *Client) AccessKeyView(ctx context.Context, accountID string, publicKey key.Base58PublicKey, block block.BlockCharacteristic) (resp AccessKeyView, err error) {
+func (c *Client) AccessKeyView(ctx context.Context, accountID types.AccountID, publicKey key.Base58PublicKey, block block.BlockCharacteristic) (resp AccessKeyView, err error) {
 	var res jsonrpc.JSONRPCResponse
 	res, err = c.doRPC(ctx, "query", block, map[string]interface{}{
 		"request_type": "view_access_key",
@@ -36,7 +37,7 @@ func (c *Client) AccessKeyView(ctx context.Context, accountID string, publicKey 
 }
 
 // https://docs.near.org/docs/develop/front-end/rpc#view-access-key-list
-func (c *Client) AccessKeyViewList(ctx context.Context, accountID string, block block.BlockCharacteristic) (resp AccessKeyList, err error) {
+func (c *Client) AccessKeyViewList(ctx context.Context, accountID types.AccountID, block block.BlockCharacteristic) (resp AccessKeyList, err error) {
 	var res jsonrpc.JSONRPCResponse
 	res, err = c.doRPC(ctx, "query", block, map[string]interface{}{
 		"request_type": "view_access_key_list",
@@ -60,7 +61,7 @@ func (c *Client) AccessKeyViewList(ctx context.Context, accountID string, block 
 
 // TODO: decode response
 // https://docs.near.org/docs/develop/front-end/rpc#view-access-key-changes-single
-func (c *Client) AccessKeyViewChanges(ctx context.Context, accountID string, publicKey key.Base58PublicKey, block block.BlockCharacteristic) (res jsonrpc.JSONRPCResponse, err error) {
+func (c *Client) AccessKeyViewChanges(ctx context.Context, accountID types.AccountID, publicKey key.Base58PublicKey, block block.BlockCharacteristic) (res jsonrpc.JSONRPCResponse, err error) {
 	res, err = c.doRPC(ctx, "EXPERIMENTAL_changes", block, map[string]interface{}{
 		"changes_type": "single_access_key_changes",
 		"keys": map[string]interface{}{
@@ -74,7 +75,7 @@ func (c *Client) AccessKeyViewChanges(ctx context.Context, accountID string, pub
 
 // TODO: decode response
 // https://docs.near.org/docs/develop/front-end/rpc#view-access-key-changes-all
-func (c *Client) AccessKeyViewChangesAll(ctx context.Context, accountIDs []string, block block.BlockCharacteristic) (res jsonrpc.JSONRPCResponse, err error) {
+func (c *Client) AccessKeyViewChangesAll(ctx context.Context, accountIDs []types.AccountID, block block.BlockCharacteristic) (res jsonrpc.JSONRPCResponse, err error) {
 	res, err = c.doRPC(ctx, "EXPERIMENTAL_changes", block, map[string]interface{}{
 		"changes_type": "all_access_key_changes",
 		"account_ids":  accountIDs,
