@@ -17,6 +17,9 @@ const (
 )
 
 var (
+	ErrInvalidSignature     = errors.New("invalid signature")
+	ErrInvalidSignatureType = errors.New("invalid signature type")
+
 	signatureTypes = map[byte]SignatureType{
 		RawSignatureTypeED25519:   SignatureTypeED25519,
 		RawSignatureTypeSECP256K1: SignatureTypeSECP256K1,
