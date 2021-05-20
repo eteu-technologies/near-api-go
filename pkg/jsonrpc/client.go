@@ -44,19 +44,19 @@ func (c *JSONRPCClient) CallRPC(ctx context.Context, method string, params inter
 		params,
 	})
 	if err != nil {
-		return res, err
+		return
 	}
 
 	request, err := http.NewRequestWithContext(ctx, http.MethodPost, c.URL, bytes.NewBuffer(body))
 	if err != nil {
-		return res, err
+		return
 	}
 
 	request.Header.Add("Content-Type", "application/json")
 
 	response, err := c.client.Do(request)
 	if err != nil {
-		return res, err
+		return
 	}
 
 	return parseRPCBody(response.Body)
