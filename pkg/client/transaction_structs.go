@@ -7,6 +7,7 @@ import (
 	"github.com/eteu-technologies/near-api-go/pkg/types/action"
 	"github.com/eteu-technologies/near-api-go/pkg/types/hash"
 	"github.com/eteu-technologies/near-api-go/pkg/types/key"
+	"github.com/eteu-technologies/near-api-go/pkg/types/signature"
 )
 
 type TransactionStatus struct {
@@ -16,13 +17,13 @@ type TransactionStatus struct {
 }
 
 type SignedTransactionView struct {
-	SignerID   types.AccountID     `json:"signer_id"`
-	PublicKey  key.Base58PublicKey `json:"public_key"`
-	Nonce      types.Nonce         `json:"nonce"`
-	ReceiverID types.AccountID     `json:"receiver_id"`
-	Actions    []action.Action     `json:"actions"`
-	Signature  json.RawMessage     `json:"signature"` // TODO: needs a type!
-	Hash       hash.CryptoHash     `json:"hash"`
+	SignerID   types.AccountID           `json:"signer_id"`
+	PublicKey  key.Base58PublicKey       `json:"public_key"`
+	Nonce      types.Nonce               `json:"nonce"`
+	ReceiverID types.AccountID           `json:"receiver_id"`
+	Actions    []action.Action           `json:"actions"`
+	Signature  signature.Base58Signature `json:"signature"`
+	Hash       hash.CryptoHash           `json:"hash"`
 }
 
 type FinalExecutionOutcomeView struct {
