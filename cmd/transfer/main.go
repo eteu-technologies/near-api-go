@@ -15,7 +15,6 @@ import (
 	"github.com/eteu-technologies/near-api-go/pkg/types"
 	"github.com/eteu-technologies/near-api-go/pkg/types/action"
 	"github.com/eteu-technologies/near-api-go/pkg/types/key"
-	"github.com/eteu-technologies/near-api-go/pkg/types/transaction"
 )
 
 func main() {
@@ -85,15 +84,13 @@ func entrypoint(cctx *cli.Context) (err error) {
 	log.Printf("near network: %s", rpc.NetworkAddr())
 
 	ctx := client.ContextWithKeyPair(context.Background(), keyPair)
-	txn := transaction.Transaction{
-		SignerID:   senderID,
-		ReceiverID: recipientID,
-		Actions: []action.Action{
+	res, err := rpc.TransactionSendAwait(
+		ctx, senderID, recipientID,
+		[]action.Action{
 			action.NewTransfer(amount),
 		},
-	}
-
-	res, err := rpc.TransactionSendAwait(ctx, txn, client.WithLatestBlock())
+		client.WithLatestBlock(),
+	)
 	if err != nil {
 		return fmt.Errorf("failed to do txn: %w", err)
 	}

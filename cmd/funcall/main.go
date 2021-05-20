@@ -16,7 +16,6 @@ import (
 	"github.com/eteu-technologies/near-api-go/pkg/types/action"
 	"github.com/eteu-technologies/near-api-go/pkg/types/hash"
 	"github.com/eteu-technologies/near-api-go/pkg/types/key"
-	"github.com/eteu-technologies/near-api-go/pkg/types/transaction"
 )
 
 func main() {
@@ -111,21 +110,22 @@ func entrypoint(cctx *cli.Context) (err error) {
 		return fmt.Errorf("either 'change' or 'view' is accepted, you supplied '%s'", cctx.String("mode"))
 	}
 
-	// Create a transaction
+	// Make a transaction
 	var args []byte = nil
 	if a := cctx.String("args"); cctx.IsSet("args") {
 		args = []byte(a)
 	}
 
-	txn := transaction.Transaction{
-		SignerID:   cctx.String("account"),
-		ReceiverID: cctx.String("target"),
-		Actions: []action.Action{
+	res, err := rpc.TransactionSendAwait(
+		context.Background(),
+		cctx.String("account"),
+		cctx.String("target"),
+		[]action.Action{
 			action.NewFunctionCall(cctx.String("method"), args, gas, deposit),
 		},
-	}
-
-	res, err := rpc.TransactionSendAwait(context.Background(), txn, client.WithLatestBlock(), client.WithKeyPair(keyPair))
+		client.WithLatestBlock(),
+		client.WithKeyPair(keyPair),
+	)
 	if err != nil {
 		return fmt.Errorf("failed to do txn: %w", err)
 	}
