@@ -10,13 +10,13 @@ type JSONRPC struct {
 	Method  string `json:"method"`
 }
 
-type JSONRPCRequest struct {
+type Request struct {
 	JSONRPC
 	Params interface{} `json:"params,omitempty"`
 }
 
-type JSONRPCResponse struct {
+type Response struct {
 	JSONRPC
-	Error  *JSONRPCError   `json:"error"`
+	Error  *Error          `json:"error"`
 	Result json.RawMessage `json:"result"`
 }

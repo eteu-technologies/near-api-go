@@ -13,14 +13,14 @@ import (
 
 const JSONRPCVersion = "2.0"
 
-type JSONRPCClient struct {
+type Client struct {
 	URL string
 
 	client    *http.Client
 	nextReqId uint64
 }
 
-func NewClient(networkAddr string) (client JSONRPCClient, err error) {
+func NewClient(networkAddr string) (client Client, err error) {
 	_, err = url.Parse(networkAddr)
 	if err != nil {
 		return
@@ -33,13 +33,13 @@ func NewClient(networkAddr string) (client JSONRPCClient, err error) {
 	return
 }
 
-func (c *JSONRPCClient) nextId() uint64 {
+func (c *Client) nextId() uint64 {
 	return atomic.AddUint64(&c.nextReqId, 1)
 }
 
-func (c *JSONRPCClient) CallRPC(ctx context.Context, method string, params interface{}) (res JSONRPCResponse, err error) {
+func (c *Client) CallRPC(ctx context.Context, method string, params interface{}) (res Response, err error) {
 	reqId := fmt.Sprintf("%d", c.nextId())
-	body, err := json.Marshal(JSONRPCRequest{
+	body, err := json.Marshal(Request{
 		JSONRPC{JSONRPCVersion, reqId, method},
 		params,
 	})
@@ -62,7 +62,7 @@ func (c *JSONRPCClient) CallRPC(ctx context.Context, method string, params inter
 	return parseRPCBody(response.Body)
 }
 
-func parseRPCBody(body io.ReadCloser) (res JSONRPCResponse, err error) {
+func parseRPCBody(body io.ReadCloser) (res Response, err error) {
 	defer func() { _ = body.Close() }()
 	decoder := json.NewDecoder(body)
 	decoder.DisallowUnknownFields()

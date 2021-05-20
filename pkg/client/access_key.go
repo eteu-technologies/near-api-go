@@ -13,7 +13,7 @@ import (
 // TODO: decode response
 // https://docs.near.org/docs/develop/front-end/rpc#view-access-key
 func (c *Client) AccessKeyView(ctx context.Context, accountID types.AccountID, publicKey key.Base58PublicKey, block block.BlockCharacteristic) (resp AccessKeyView, err error) {
-	var res jsonrpc.JSONRPCResponse
+	var res jsonrpc.Response
 	res, err = c.doRPC(ctx, "query", block, map[string]interface{}{
 		"request_type": "view_access_key",
 		"account_id":   accountID,
@@ -32,7 +32,7 @@ func (c *Client) AccessKeyView(ctx context.Context, accountID types.AccountID, p
 
 // https://docs.near.org/docs/develop/front-end/rpc#view-access-key-list
 func (c *Client) AccessKeyViewList(ctx context.Context, accountID types.AccountID, block block.BlockCharacteristic) (resp AccessKeyList, err error) {
-	var res jsonrpc.JSONRPCResponse
+	var res jsonrpc.Response
 	res, err = c.doRPC(ctx, "query", block, map[string]interface{}{
 		"request_type": "view_access_key_list",
 		"account_id":   accountID,
@@ -50,7 +50,7 @@ func (c *Client) AccessKeyViewList(ctx context.Context, accountID types.AccountI
 
 // TODO: decode response
 // https://docs.near.org/docs/develop/front-end/rpc#view-access-key-changes-single
-func (c *Client) AccessKeyViewChanges(ctx context.Context, accountID types.AccountID, publicKey key.Base58PublicKey, block block.BlockCharacteristic) (res jsonrpc.JSONRPCResponse, err error) {
+func (c *Client) AccessKeyViewChanges(ctx context.Context, accountID types.AccountID, publicKey key.Base58PublicKey, block block.BlockCharacteristic) (res jsonrpc.Response, err error) {
 	res, err = c.doRPC(ctx, "EXPERIMENTAL_changes", block, map[string]interface{}{
 		"changes_type": "single_access_key_changes",
 		"keys": map[string]interface{}{
@@ -64,7 +64,7 @@ func (c *Client) AccessKeyViewChanges(ctx context.Context, accountID types.Accou
 
 // TODO: decode response
 // https://docs.near.org/docs/develop/front-end/rpc#view-access-key-changes-all
-func (c *Client) AccessKeyViewChangesAll(ctx context.Context, accountIDs []types.AccountID, block block.BlockCharacteristic) (res jsonrpc.JSONRPCResponse, err error) {
+func (c *Client) AccessKeyViewChangesAll(ctx context.Context, accountIDs []types.AccountID, block block.BlockCharacteristic) (res jsonrpc.Response, err error) {
 	res, err = c.doRPC(ctx, "EXPERIMENTAL_changes", block, map[string]interface{}{
 		"changes_type": "all_access_key_changes",
 		"account_ids":  accountIDs,

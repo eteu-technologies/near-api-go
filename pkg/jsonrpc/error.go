@@ -16,12 +16,12 @@ const (
 	CodeServerErrorRangeEnd   = -32000
 )
 
-type JSONRPCError struct {
+type Error struct {
 	Code    int             `json:"code"`
 	Message string          `json:"message"`
 	Data    json.RawMessage `json:"data"`
 }
 
-func (err JSONRPCError) Error() string {
+func (err Error) Error() string {
 	return fmt.Sprintf("JSON-RPC error '%s' (%d) %s", err.Message, err.Code, string(err.Data))
 }

@@ -8,7 +8,7 @@ import (
 )
 
 type Client struct {
-	RPCClient jsonrpc.JSONRPCClient
+	RPCClient jsonrpc.Client
 }
 
 func NewClient(networkAddr string) (client Client, err error) {
@@ -24,7 +24,7 @@ func (c *Client) NetworkAddr() string {
 	return c.RPCClient.URL
 }
 
-func (c *Client) doRPC(ctx context.Context, method string, block block.BlockCharacteristic, params interface{}) (res jsonrpc.JSONRPCResponse, err error) {
+func (c *Client) doRPC(ctx context.Context, method string, block block.BlockCharacteristic, params interface{}) (res jsonrpc.Response, err error) {
 	if block != nil {
 		if mapv, ok := params.(map[string]interface{}); ok {
 			block(mapv)
