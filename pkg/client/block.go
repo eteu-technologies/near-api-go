@@ -3,7 +3,6 @@ package client
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
 	"github.com/eteu-technologies/near-api-go/pkg/client/block"
 	"github.com/eteu-technologies/near-api-go/pkg/jsonrpc"
@@ -13,13 +12,7 @@ import (
 func (c *Client) BlockDetails(ctx context.Context, block block.BlockCharacteristic) (resp BlockView, err error) {
 	var res jsonrpc.JSONRPCResponse
 	res, err = c.doRPC(ctx, "block", block, map[string]interface{}{})
-
 	if err != nil {
-		return
-	}
-
-	if res.Error != nil {
-		err = fmt.Errorf("%s", string(*res.Error))
 		return
 	}
 

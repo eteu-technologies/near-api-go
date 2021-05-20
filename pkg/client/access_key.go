@@ -3,7 +3,6 @@ package client
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
 	"github.com/eteu-technologies/near-api-go/pkg/client/block"
 	"github.com/eteu-technologies/near-api-go/pkg/jsonrpc"
@@ -24,11 +23,6 @@ func (c *Client) AccessKeyView(ctx context.Context, accountID types.AccountID, p
 		return
 	}
 
-	if res.Error != nil {
-		err = fmt.Errorf("%s", string(*res.Error))
-		return
-	}
-
 	if err = json.Unmarshal(res.Result, &resp); err != nil {
 		return
 	}
@@ -44,11 +38,6 @@ func (c *Client) AccessKeyViewList(ctx context.Context, accountID types.AccountI
 		"account_id":   accountID,
 	})
 	if err != nil {
-		return
-	}
-
-	if res.Error != nil {
-		err = fmt.Errorf("%s", string(*res.Error))
 		return
 	}
 

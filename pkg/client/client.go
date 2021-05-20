@@ -32,5 +32,15 @@ func (c *Client) doRPC(ctx context.Context, method string, block block.BlockChar
 	}
 
 	res, err = c.RPCClient.CallRPC(ctx, method, params)
+	if err != nil {
+		return
+	}
+
+	// If JSON-RPC error happens, conveniently set it as err to avoid duplicating code
+	// XXX: using plain assignment makes `err != nil` true for some reason
+	if err := res.Error; err != nil {
+		return res, err
+	}
+
 	return
 }

@@ -13,6 +13,17 @@ import (
 
 const JSONRPCVersion = "2.0"
 
+const (
+	CodeParseError     = -32700
+	CodeInvalidRequest = -32600
+	CodeMethodNotFound = -32601
+	CodeInvalidParams  = -32602
+	CodeInternalError  = -32603
+
+	CodeServerErrorRangeStart = -32099
+	CodeServerErrorRangeEnd   = -32000
+)
+
 type JSONRPC struct {
 	JSONRPC string `json:"jsonrpc"`
 	ID      string `json:"id"`
@@ -26,8 +37,18 @@ type JSONRPCRequest struct {
 
 type JSONRPCResponse struct {
 	JSONRPC
-	Error  *json.RawMessage `json:"error"`
-	Result json.RawMessage  `json:"result"`
+	Error  *JSONRPCError   `json:"error"`
+	Result json.RawMessage `json:"result"`
+}
+
+type JSONRPCError struct {
+	Code    int             `json:"code"`
+	Message string          `json:"message"`
+	Data    json.RawMessage `json:"data"`
+}
+
+func (err JSONRPCError) Error() string {
+	return fmt.Sprintf("JSON-RPC error '%s' (%d) %s", err.Message, err.Code, string(err.Data))
 }
 
 type JSONRPCClient struct {
@@ -76,24 +97,16 @@ func (c *JSONRPCClient) CallRPC(ctx context.Context, method string, params inter
 		return res, err
 	}
 
-	defer response.Body.Close()
-	if response.StatusCode != http.StatusOK {
-		// TODO: better error handling
-		return res, fmt.Errorf("status code %d", response.StatusCode)
-	}
-
 	return parseRPCBody(response.Body)
 }
 
-func parseRPCBody(body io.Reader) (res JSONRPCResponse, err error) {
-	var decodedResponse JSONRPCResponse
-	if err = json.NewDecoder(body).Decode(&res); err != nil {
-		return
-	}
+func parseRPCBody(body io.ReadCloser) (res JSONRPCResponse, err error) {
+	defer func() { _ = body.Close() }()
+	decoder := json.NewDecoder(body)
+	decoder.DisallowUnknownFields()
 
-	if rerr := decodedResponse.Error; rerr != nil {
-		// TODO: custom error struct
-		return res, fmt.Errorf("jsonrpc error %s", *rerr)
+	if err = decoder.Decode(&res); err != nil {
+		return
 	}
 
 	return

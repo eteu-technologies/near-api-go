@@ -3,7 +3,6 @@ package client
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 
 	"github.com/eteu-technologies/near-api-go/pkg/jsonrpc"
 	"github.com/eteu-technologies/near-api-go/pkg/types"
@@ -16,11 +15,6 @@ func (c *Client) RPCTransactionSend(ctx context.Context, signedTxnBase64 string)
 	res, err = c.doRPC(ctx, "broadcast_tx_async", nil, []string{signedTxnBase64})
 
 	if err != nil {
-		return
-	}
-
-	if res.Error != nil {
-		err = fmt.Errorf("%s", string(*res.Error))
 		return
 	}
 
@@ -37,11 +31,6 @@ func (c *Client) RPCTransactionSendAwait(ctx context.Context, signedTxnBase64 st
 	res, err = c.doRPC(ctx, "broadcast_tx_commit", nil, []string{signedTxnBase64})
 
 	if err != nil {
-		return
-	}
-
-	if res.Error != nil {
-		err = fmt.Errorf("%s", string(*res.Error))
 		return
 	}
 
@@ -63,11 +52,6 @@ func (c *Client) TransactionStatus(ctx context.Context, tx hash.CryptoHash, send
 		return
 	}
 
-	if res.Error != nil {
-		err = fmt.Errorf("%s", string(*res.Error))
-		return
-	}
-
 	if err = json.Unmarshal(res.Result, &resp); err != nil {
 		return
 	}
@@ -83,11 +67,6 @@ func (c *Client) TransactionStatusWithReceipts(ctx context.Context, tx hash.Cryp
 	})
 
 	if err != nil {
-		return
-	}
-
-	if res.Error != nil {
-		err = fmt.Errorf("%s", string(*res.Error))
 		return
 	}
 
