@@ -1,3 +1,0 @@
-[submodule "borsh-go"]
-	path = borsh-go
-	url = git@github.com:eteu-technologies/borsh-go.git

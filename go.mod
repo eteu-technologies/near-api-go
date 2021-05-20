@@ -10,5 +10,3 @@ require (
 	github.com/mr-tron/base58 v1.2.0
 	github.com/urfave/cli/v2 v2.3.0
 )
-
-replace github.com/eteu-technologies/borsh-go => ./borsh-go
