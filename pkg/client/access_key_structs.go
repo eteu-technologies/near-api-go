@@ -10,7 +10,7 @@ import (
 
 type AccessKey struct {
 	Nonce      types.Nonce     `json:"nonce"`
-	Permission json.RawMessage `json:"permission"`
+	Permission json.RawMessage `json:"permission"` // TODO: conditional decoding
 }
 
 type AccessKeyView struct {

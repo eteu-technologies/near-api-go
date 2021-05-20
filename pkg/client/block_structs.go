@@ -15,7 +15,7 @@ type SlashedValidator struct {
 	IsDoubleSign bool            `json:"is_double_sign"`
 }
 
-// ValidatorStake is based on ValidatorStakeV1 struct in nearcore
+// ValidatorStakeView is based on ValidatorStakeV1 struct in nearcore
 type ValidatorStakeView struct {
 	AccountID types.AccountID `json:"account_id"`
 	PublicKey key.PublicKey   `json:"public_key"`

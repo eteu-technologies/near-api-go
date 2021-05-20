@@ -10,7 +10,6 @@ import (
 	"github.com/eteu-technologies/near-api-go/pkg/types/key"
 )
 
-// TODO: decode response
 // https://docs.near.org/docs/develop/front-end/rpc#view-access-key
 func (c *Client) AccessKeyView(ctx context.Context, accountID types.AccountID, publicKey key.Base58PublicKey, block block.BlockCharacteristic) (resp AccessKeyView, err error) {
 	var res jsonrpc.Response
