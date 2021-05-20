@@ -10,7 +10,7 @@ import (
 // TODO: decode response
 // https://docs.near.org/docs/develop/front-end/rpc#chunk-details
 func (c *Client) ChunkDetails(ctx context.Context, chunkHash hash.CryptoHash) (res jsonrpc.Response, err error) {
-	res, err = c.doRPC(ctx, "chunk", nil, []string{chunkHash.String()})
+	res, err = c.doRPC(ctx, nil, "chunk", nil, []string{chunkHash.String()})
 
 	return
 }

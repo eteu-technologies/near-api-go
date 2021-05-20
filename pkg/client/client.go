@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/eteu-technologies/near-api-go/pkg/client/block"
 	"github.com/eteu-technologies/near-api-go/pkg/jsonrpc"
@@ -24,7 +25,7 @@ func (c *Client) NetworkAddr() string {
 	return c.RPCClient.URL
 }
 
-func (c *Client) doRPC(ctx context.Context, method string, block block.BlockCharacteristic, params interface{}) (res jsonrpc.Response, err error) {
+func (c *Client) doRPC(ctx context.Context, result interface{}, method string, block block.BlockCharacteristic, params interface{}) (res jsonrpc.Response, err error) {
 	if block != nil {
 		if mapv, ok := params.(map[string]interface{}); ok {
 			block(mapv)
@@ -40,6 +41,12 @@ func (c *Client) doRPC(ctx context.Context, method string, block block.BlockChar
 	// XXX: using plain assignment makes `err != nil` true for some reason
 	if err := res.Error; err != nil {
 		return res, err
+	}
+
+	if result != nil {
+		if err = json.Unmarshal(res.Result, result); err != nil {
+			return
+		}
 	}
 
 	return
