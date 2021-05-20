@@ -1,0 +1,20 @@
+name: lint
+on:
+  push:
+    tags:
+      - v*
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  golangci:
+    name: "Run linter (golangci-lint)"
+    runs-on: "ubuntu-latest"
+    steps:
+      - name: "Checkout code"
+        uses: "actions/checkout@v2"
+
+      - name: "Run golangci-lint"
+        id: "run-linter"
+        uses: "golangci/golangci-lint-action@v2"
