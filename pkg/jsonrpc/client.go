@@ -13,44 +13,6 @@ import (
 
 const JSONRPCVersion = "2.0"
 
-const (
-	CodeParseError     = -32700
-	CodeInvalidRequest = -32600
-	CodeMethodNotFound = -32601
-	CodeInvalidParams  = -32602
-	CodeInternalError  = -32603
-
-	CodeServerErrorRangeStart = -32099
-	CodeServerErrorRangeEnd   = -32000
-)
-
-type JSONRPC struct {
-	JSONRPC string `json:"jsonrpc"`
-	ID      string `json:"id"`
-	Method  string `json:"method"`
-}
-
-type JSONRPCRequest struct {
-	JSONRPC
-	Params interface{} `json:"params,omitempty"`
-}
-
-type JSONRPCResponse struct {
-	JSONRPC
-	Error  *JSONRPCError   `json:"error"`
-	Result json.RawMessage `json:"result"`
-}
-
-type JSONRPCError struct {
-	Code    int             `json:"code"`
-	Message string          `json:"message"`
-	Data    json.RawMessage `json:"data"`
-}
-
-func (err JSONRPCError) Error() string {
-	return fmt.Sprintf("JSON-RPC error '%s' (%d) %s", err.Message, err.Code, string(err.Data))
-}
-
 type JSONRPCClient struct {
 	URL string
 
