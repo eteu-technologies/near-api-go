@@ -16,9 +16,6 @@ func (c *Client) AccessKeyView(ctx context.Context, accountID types.AccountID, p
 		"account_id":   accountID,
 		"public_key":   publicKey,
 	})
-	if err != nil {
-		return
-	}
 
 	return
 }
