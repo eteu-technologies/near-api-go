@@ -11,7 +11,6 @@ import (
 
 type AccessKey struct {
 	Nonce         types.Nonce     `json:"nonce"`
-	RawPermission json.RawMessage `json:"permission"`
 
 	// Permission holds parsed access key permission info
 	Permission AccessKeyPermission `json:"-"`
@@ -29,7 +28,6 @@ func (ak *AccessKey) UnmarshalJSON(b []byte) (err error) {
 
 	*ak = AccessKey{
 		Nonce:         tmp.Nonce,
-		RawPermission: tmp.RawPermission,
 	}
 	err = ak.Permission.UnmarshalJSON(tmp.RawPermission)
 
