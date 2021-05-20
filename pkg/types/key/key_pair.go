@@ -8,6 +8,8 @@ import (
 	"strings"
 
 	"github.com/mr-tron/base58"
+
+	"github.com/eteu-technologies/near-api-go/pkg/types/signature"
 )
 
 type KeyPair struct {
@@ -99,13 +101,13 @@ func NewBase58KeyPair(raw string) (kp KeyPair, err error) {
 	return
 }
 
-func (kp *KeyPair) Sign(data []byte) (sig Signature) {
+func (kp *KeyPair) Sign(data []byte) (sig signature.Signature) {
 	sigType := reverseKeyTypeMapping[string(kp.Type)]
 
 	switch sigType {
 	//case RawPublicKeyTypeSECP256K1:
 	case RawKeyTypeED25519:
-		sig = NewSignatureED25519(ed25519.Sign(kp.PrivateKey, data))
+		sig = signature.NewSignatureED25519(ed25519.Sign(kp.PrivateKey, data))
 	}
 	return
 }

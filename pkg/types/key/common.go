@@ -10,11 +10,6 @@ const (
 )
 
 const (
-	RawSignatureTypeED25519   = RawKeyTypeED25519
-	RawSignatureTypeSECP256K1 = RawKeyTypeSECP256K1
-)
-
-const (
 	KeyTypeED25519   PublicKeyType = "ed25519"
 	KeyTypeSECP256K1 PublicKeyType = "secp256k1"
 )

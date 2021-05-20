@@ -6,11 +6,12 @@ import (
 	"github.com/eteu-technologies/borsh-go"
 	"github.com/eteu-technologies/near-api-go/pkg/types/hash"
 	"github.com/eteu-technologies/near-api-go/pkg/types/key"
+	"github.com/eteu-technologies/near-api-go/pkg/types/signature"
 )
 
 type SignedTransaction struct {
 	Transaction Transaction
-	Signature   key.Signature
+	Signature   signature.Signature
 
 	SerializedTransaction []byte          `borsh_skip:"true"`
 	hash                  hash.CryptoHash `borsh_skip:"true"`

@@ -7,6 +7,8 @@ import (
 	"fmt"
 
 	"github.com/mr-tron/base58"
+
+	"github.com/eteu-technologies/near-api-go/pkg/types/signature"
 )
 
 // TODO: SECP256K1
@@ -44,7 +46,7 @@ func (p *PublicKey) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (p *PublicKey) Verify(data []byte, signature Signature) (ok bool, err error) {
+func (p *PublicKey) Verify(data []byte, signature signature.Signature) (ok bool, err error) {
 	keyType := p.TypeByte()
 	if signature.Type() != keyType {
 		return false, fmt.Errorf("cannot verify signature type %d with key type %d", signature.Type(), p.TypeByte())

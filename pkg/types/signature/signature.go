@@ -1,6 +1,8 @@
-package key
+package signature
 
-import "crypto/ed25519"
+import (
+	"crypto/ed25519"
+)
 
 // TODO: SECP256K1 support
 type Signature [1 + ed25519.SignatureSize]byte
