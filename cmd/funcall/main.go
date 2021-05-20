@@ -150,9 +150,7 @@ func entrypoint(cctx *cli.Context) (err error) {
 			logEntries[receipt.ID] = entry
 		}
 
-		for _, line := range receipt.Outcome.Logs {
-			entry.Lines = append(entry.Lines, line)
-		}
+		entry.Lines = append(entry.Lines, receipt.Outcome.Logs...)
 	}
 
 	if len(logEntries) > 0 {
