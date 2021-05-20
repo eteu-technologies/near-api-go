@@ -2,30 +2,56 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
+	"os"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/urfave/cli/v2"
 
 	"github.com/eteu-technologies/near-api-go/pkg/client"
 	"github.com/eteu-technologies/near-api-go/pkg/client/block"
+	"github.com/eteu-technologies/near-api-go/pkg/config"
 )
 
 func main() {
-	addr := "https://rpc.testnet.near.org"
-
-	rpc, err := client.NewClient(addr)
-	if err != nil {
-		log.Fatal("failed to create rpc client: ", err)
+	app := &cli.App{
+		Name:  "block",
+		Usage: "View latest block info",
+		Flags: []cli.Flag{
+			&cli.StringFlag{
+				Name:    "network",
+				Usage:   "NEAR network",
+				Value:   "testnet",
+				EnvVars: []string{"NEAR_ENV"},
+			},
+		},
+		Action: entrypoint,
 	}
 
-	log.Printf("near network: %s", rpc.NetworkAddr())
+	if err := app.Run(os.Args); err != nil {
+		log.Fatal(err)
+	}
+}
 
-	ctx := context.Background()
+func entrypoint(cctx *cli.Context) (err error) {
+	networkID := cctx.String("network")
+	network, ok := config.Networks[networkID]
+	if !ok {
+		return fmt.Errorf("unknown network '%s'", networkID)
+	}
 
-	blockDetailsResp, err := rpc.BlockDetails(ctx, block.FinalityFinal())
+	rpc, err := client.NewClient(network.NodeURL)
 	if err != nil {
-		log.Fatal("failed to query block details: ", err)
+		return fmt.Errorf("failed to create rpc client: %w", err)
+	}
+
+	blockDetailsResp, err := rpc.BlockDetails(context.Background(), block.FinalityFinal())
+	if err != nil {
+		return fmt.Errorf("failed to query latest block info: %w", err)
 	}
 
 	spew.Dump(blockDetailsResp)
+
+	return
 }
