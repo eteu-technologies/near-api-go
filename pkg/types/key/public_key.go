@@ -86,7 +86,7 @@ func PublicKeyFromBytes(b []byte) (pk PublicKey, err error) {
 		return pk, fmt.Errorf("SECP256K1 is not supported yet")
 	}
 
-	return pk, ErrInvalidPublicKeyType
+	return pk, ErrInvalidKeyType
 }
 
 func WrapRawKey(keyType PublicKeyType, key []byte) (pk PublicKey, err error) {
@@ -104,7 +104,7 @@ func WrapRawKey(keyType PublicKeyType, key []byte) (pk PublicKey, err error) {
 		return pk, fmt.Errorf("SECP256K1 is not supported yet")
 	}
 
-	return pk, ErrInvalidPublicKeyType
+	return pk, ErrInvalidKeyType
 }
 
 func WrapED25519(key ed25519.PublicKey) PublicKey {

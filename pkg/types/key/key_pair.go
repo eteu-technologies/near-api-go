@@ -21,7 +21,7 @@ type KeyPair struct {
 
 func GenerateKeyPair(keyType PublicKeyType, rand io.Reader) (kp KeyPair, err error) {
 	if _, ok := reverseKeyTypeMapping[string(keyType)]; !ok {
-		return kp, ErrInvalidPrivateKeyType
+		return kp, ErrInvalidKeyType
 	}
 
 	var rawPub PublicKey
@@ -69,7 +69,7 @@ func NewBase58KeyPair(raw string) (kp KeyPair, err error) {
 
 	keyType, ok := reverseKeyTypeMapping[keyTypeRaw]
 	if !ok {
-		return kp, ErrInvalidPrivateKeyType
+		return kp, ErrInvalidKeyType
 	}
 
 	// TODO

@@ -26,7 +26,7 @@ func NewBase58PublicKey(raw string) (pk Base58PublicKey, err error) {
 
 	keyType, ok := reverseKeyTypeMapping[keyTypeRaw]
 	if !ok {
-		return pk, ErrInvalidPublicKeyType
+		return pk, ErrInvalidKeyType
 	}
 
 	decoded, err := base58.Decode(encodedKey)
