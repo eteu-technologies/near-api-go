@@ -62,7 +62,6 @@ func (akp *AccessKeyPermission) UnmarshalJSON(b []byte) (err error) {
 	var perm struct {
 		FunctionCall FunctionCallPermission `json:"FunctionCall"`
 	}
-	println("parsing object: " + string(b))
 	err = json.Unmarshal(b, &perm)
 	akp.FunctionCall = perm.FunctionCall
 
