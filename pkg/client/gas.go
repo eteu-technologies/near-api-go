@@ -4,13 +4,11 @@ import (
 	"context"
 
 	"github.com/eteu-technologies/near-api-go/pkg/client/block"
-	"github.com/eteu-technologies/near-api-go/pkg/jsonrpc"
 )
 
-// TODO: decode response
 // https://docs.near.org/docs/develop/front-end/rpc#gas-price
-func (c *Client) GasPriceView(ctx context.Context, block block.BlockCharacteristic) (res jsonrpc.Response, err error) {
-	res, err = c.doRPC(ctx, nil, "gas_price", nil, blockIDArrayParams(block))
+func (c *Client) GasPriceView(ctx context.Context, block block.BlockCharacteristic) (res GasPrice, err error) {
+	_, err = c.doRPC(ctx, &res, "gas_price", nil, blockIDArrayParams(block))
 
 	return
 }
