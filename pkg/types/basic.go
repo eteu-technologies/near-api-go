@@ -21,3 +21,6 @@ type ShardID = uint64
 
 // StorageUsage is used to count the amount of storage used by a contract.
 type StorageUsage = uint64
+
+// NumBlocks holds number of blocks in current group.
+type NumBlocks = uint64
