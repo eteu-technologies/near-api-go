@@ -9,7 +9,7 @@ import (
 )
 
 // TODO: decode response
-// https://docs.near.org/docs/develop/front-end/rpc#view-contract-state
+// https://docs.near.org/docs/api/rpc#view-contract-state
 func (c *Client) ContractViewState(ctx context.Context, accountID types.AccountID, prefixBase64 string, block block.BlockCharacteristic) (res jsonrpc.Response, err error) {
 	res, err = c.doRPC(ctx, nil, "query", block, map[string]interface{}{
 		"request_type":  "view_state",
@@ -21,7 +21,7 @@ func (c *Client) ContractViewState(ctx context.Context, accountID types.AccountI
 }
 
 // TODO: decode response
-// https://docs.near.org/docs/develop/front-end/rpc#view-contract-state-changes
+// https://docs.near.org/docs/api/rpc#view-contract-state-changes
 func (c *Client) ContractViewStateChanges(ctx context.Context, accountIDs []types.AccountID, keyPrefixBase64 string, block block.BlockCharacteristic) (res jsonrpc.Response, err error) {
 	res, err = c.doRPC(ctx, nil, "EXPERIMENTAL_changes", block, map[string]interface{}{
 		"changes_type":      "data_changes",
@@ -33,7 +33,7 @@ func (c *Client) ContractViewStateChanges(ctx context.Context, accountIDs []type
 }
 
 // TODO: decode response
-// https://docs.near.org/docs/develop/front-end/rpc#view-contract-code-changes
+// https://docs.near.org/docs/api/rpc#view-contract-code-changes
 func (c *Client) ContractViewCodeChanges(ctx context.Context, accountIDs []types.AccountID, block block.BlockCharacteristic) (res jsonrpc.Response, err error) {
 	res, err = c.doRPC(ctx, nil, "EXPERIMENTAL_changes", block, map[string]interface{}{
 		"changes_type": "contract_code_changes",
@@ -44,7 +44,7 @@ func (c *Client) ContractViewCodeChanges(ctx context.Context, accountIDs []types
 }
 
 // TODO: decode response
-// https://docs.near.org/docs/develop/front-end/rpc#call-a-contract-function
+// https://docs.near.org/docs/api/rpc#call-a-contract-function
 func (c *Client) ContractViewCallFunction(ctx context.Context, accountID, methodName, argsBase64 string, block block.BlockCharacteristic) (res jsonrpc.Response, err error) {
 	res, err = c.doRPC(ctx, nil, "query", block, map[string]interface{}{
 		"request_type": "call_function",

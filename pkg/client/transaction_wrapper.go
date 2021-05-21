@@ -65,7 +65,7 @@ func (c *Client) prepareTransaction(ctx context.Context, from, to types.AccountI
 	return
 }
 
-// https://docs.near.org/docs/develop/front-end/rpc#send-transaction-async
+// https://docs.near.org/docs/api/rpc#send-transaction-async
 func (c *Client) TransactionSend(ctx context.Context, from, to types.AccountID, actions []action.Action, txnOpts ...TransactionOpt) (res hash.CryptoHash, err error) {
 	ctx2, blob, err := c.prepareTransaction(ctx, from, to, actions, txnOpts...)
 	if err != nil {
@@ -74,7 +74,7 @@ func (c *Client) TransactionSend(ctx context.Context, from, to types.AccountID, 
 	return c.RPCTransactionSend(ctx2, blob)
 }
 
-// https://docs.near.org/docs/develop/front-end/rpc#send-transaction-await
+// https://docs.near.org/docs/api/rpc#send-transaction-await
 func (c *Client) TransactionSendAwait(ctx context.Context, from, to types.AccountID, actions []action.Action, txnOpts ...TransactionOpt) (res FinalExecutionOutcomeView, err error) {
 	ctx2, blob, err := c.prepareTransaction(ctx, from, to, actions, txnOpts...)
 	if err != nil {

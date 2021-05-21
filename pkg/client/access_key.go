@@ -9,7 +9,7 @@ import (
 	"github.com/eteu-technologies/near-api-go/pkg/types/key"
 )
 
-// https://docs.near.org/docs/develop/front-end/rpc#view-access-key
+// https://docs.near.org/docs/api/rpc#view-access-key
 func (c *Client) AccessKeyView(ctx context.Context, accountID types.AccountID, publicKey key.Base58PublicKey, block block.BlockCharacteristic) (resp AccessKeyView, err error) {
 	_, err = c.doRPC(ctx, &resp, "query", block, map[string]interface{}{
 		"request_type": "view_access_key",
@@ -20,7 +20,7 @@ func (c *Client) AccessKeyView(ctx context.Context, accountID types.AccountID, p
 	return
 }
 
-// https://docs.near.org/docs/develop/front-end/rpc#view-access-key-list
+// https://docs.near.org/docs/api/rpc#view-access-key-list
 func (c *Client) AccessKeyViewList(ctx context.Context, accountID types.AccountID, block block.BlockCharacteristic) (resp AccessKeyList, err error) {
 	_, err = c.doRPC(ctx, &resp, "query", block, map[string]interface{}{
 		"request_type": "view_access_key_list",
@@ -31,7 +31,7 @@ func (c *Client) AccessKeyViewList(ctx context.Context, accountID types.AccountI
 }
 
 // TODO: decode response
-// https://docs.near.org/docs/develop/front-end/rpc#view-access-key-changes-single
+// https://docs.near.org/docs/api/rpc#view-access-key-changes-single
 func (c *Client) AccessKeyViewChanges(ctx context.Context, accountID types.AccountID, publicKey key.Base58PublicKey, block block.BlockCharacteristic) (res jsonrpc.Response, err error) {
 	res, err = c.doRPC(ctx, nil, "EXPERIMENTAL_changes", block, map[string]interface{}{
 		"changes_type": "single_access_key_changes",
@@ -45,7 +45,7 @@ func (c *Client) AccessKeyViewChanges(ctx context.Context, accountID types.Accou
 }
 
 // TODO: decode response
-// https://docs.near.org/docs/develop/front-end/rpc#view-access-key-changes-all
+// https://docs.near.org/docs/api/rpc#view-access-key-changes-all
 func (c *Client) AccessKeyViewChangesAll(ctx context.Context, accountIDs []types.AccountID, block block.BlockCharacteristic) (res jsonrpc.Response, err error) {
 	res, err = c.doRPC(ctx, nil, "EXPERIMENTAL_changes", block, map[string]interface{}{
 		"changes_type": "all_access_key_changes",

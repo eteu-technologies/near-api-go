@@ -8,7 +8,7 @@ import (
 )
 
 // TODO: decode response
-// https://docs.near.org/docs/develop/front-end/rpc#network-info
+// https://docs.near.org/docs/api/rpc#network-info
 func (c *Client) NetworkInfo(ctx context.Context) (res jsonrpc.Response, err error) {
 	res, err = c.doRPC(ctx, nil, "network_info", nil, []string{})
 
@@ -16,7 +16,7 @@ func (c *Client) NetworkInfo(ctx context.Context) (res jsonrpc.Response, err err
 }
 
 // TODO: decode response
-// https://docs.near.org/docs/develop/front-end/rpc#general-validator-status
+// https://docs.near.org/docs/api/rpc#general-validator-status
 func (c *Client) NetworkStatusValidators(ctx context.Context) (res jsonrpc.Response, err error) {
 	res, err = c.doRPC(ctx, nil, "status", nil, []string{})
 
@@ -24,7 +24,7 @@ func (c *Client) NetworkStatusValidators(ctx context.Context) (res jsonrpc.Respo
 }
 
 // TODO: decode response
-// https://docs.near.org/docs/develop/front-end/rpc#detailed-validator-status
+// https://docs.near.org/docs/api/rpc#detailed-validator-status
 func (c *Client) NetworkStatusValidatorsDetailed(ctx context.Context, block block.BlockCharacteristic) (res jsonrpc.Response, err error) {
 	res, err = c.doRPC(ctx, nil, "validators", nil, blockIDArrayParams(block))
 
