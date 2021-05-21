@@ -42,10 +42,9 @@ func (c *Client) ContractViewCodeChanges(ctx context.Context, accountIDs []types
 	return
 }
 
-// TODO: decode response
 // https://docs.near.org/docs/api/rpc#call-a-contract-function
-func (c *Client) ContractViewCallFunction(ctx context.Context, accountID, methodName, argsBase64 string, block block.BlockCharacteristic) (res jsonrpc.Response, err error) {
-	res, err = c.doRPC(ctx, nil, "query", block, map[string]interface{}{
+func (c *Client) ContractViewCallFunction(ctx context.Context, accountID, methodName, argsBase64 string, block block.BlockCharacteristic) (res CallResult, err error) {
+	_, err = c.doRPC(ctx, &res, "query", block, map[string]interface{}{
 		"request_type": "call_function",
 		"account_id":   accountID,
 		"method_name":  methodName,
