@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/eteu-technologies/near-api-go/pkg/types"
-	"github.com/eteu-technologies/near-api-go/pkg/types/hash"
 	"github.com/eteu-technologies/near-api-go/pkg/types/key"
 )
 
@@ -80,8 +79,8 @@ type FunctionCallPermission struct {
 
 type AccessKeyView struct {
 	AccessKey
-	BlockHeight uint64          `json:"block_height"`
-	BlockHash   hash.CryptoHash `json:"block_hash"`
+
+	QueryResponse
 }
 
 type AccessKeyViewInfo struct {
