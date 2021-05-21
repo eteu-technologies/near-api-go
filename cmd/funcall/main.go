@@ -1,7 +1,8 @@
 package main
 
 import (
-	"context"
+	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -11,6 +12,7 @@ import (
 	"github.com/urfave/cli/v2"
 
 	"github.com/eteu-technologies/near-api-go/pkg/client"
+	"github.com/eteu-technologies/near-api-go/pkg/client/block"
 	"github.com/eteu-technologies/near-api-go/pkg/config"
 	"github.com/eteu-technologies/near-api-go/pkg/types"
 	"github.com/eteu-technologies/near-api-go/pkg/types/action"
@@ -24,9 +26,8 @@ func main() {
 		Usage: "Calls function on a smart contract",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
-				Name:     "account",
-				Required: true,
-				Usage:    "Account id",
+				Name:  "account",
+				Usage: "Account id",
 			},
 			&cli.StringFlag{
 				Name:     "target",
@@ -72,6 +73,73 @@ func main() {
 }
 
 func entrypoint(cctx *cli.Context) (err error) {
+	network, ok := config.Networks[cctx.String("network")]
+	if !ok {
+		return fmt.Errorf("unknown network '%s'", cctx.String("network"))
+	}
+
+	rpc, err := client.NewClient(network.NodeURL)
+	if err != nil {
+		return fmt.Errorf("failed to create rpc client: %w", err)
+	}
+
+	log.Printf("near network: %s", rpc.NetworkAddr())
+
+	var args []byte = nil
+	if a := cctx.String("args"); cctx.IsSet("args") {
+		args = []byte(a)
+	}
+
+	switch cctx.String("mode") {
+	case "view":
+		if err := viewFunction(cctx, rpc, args); err != nil {
+			return fmt.Errorf("failed to call view function: %w", err)
+		}
+	case "change":
+		if !cctx.IsSet("account") {
+			return fmt.Errorf("--account is required for change function call")
+		}
+
+		keyPair, err := resolveCredentials(network.NetworkID, cctx.String("account"))
+		if err != nil {
+			return fmt.Errorf("failed to load private key: %w", err)
+		}
+
+		if err := changeFunction(cctx, rpc, keyPair, network, args); err != nil {
+			return fmt.Errorf("failed to call change function: %w", err)
+		}
+	default:
+		return fmt.Errorf("either 'change' or 'view' is accepted, you supplied '%s'", cctx.String("mode"))
+	}
+
+	return
+}
+
+func viewFunction(cctx *cli.Context, rpc client.Client, args []byte) (err error) {
+	res, err := rpc.ContractViewCallFunction(cctx.Context, cctx.String("target"), cctx.String("method"), base64.StdEncoding.EncodeToString(args), block.FinalityFinal())
+	if err != nil {
+		return
+	}
+
+	if l := res.Logs; len(l) > 0 {
+		log.Println("logs:")
+		for _, line := range l {
+			log.Printf("- %s", line)
+		}
+	}
+
+	log.Println("result:")
+	if len(res.Result) == 0 {
+		fmt.Println("(empty)")
+		return
+	}
+
+	fmt.Printf("%s", hex.Dump(res.Result))
+
+	return
+}
+
+func changeFunction(cctx *cli.Context, rpc client.Client, keyPair key.KeyPair, network config.NetworkInfo, args []byte) (err error) {
 	var deposit types.Balance = types.NEARToYocto(0)
 	var gas types.Gas = cctx.Uint64("gas")
 
@@ -83,41 +151,9 @@ func entrypoint(cctx *cli.Context) (err error) {
 		}
 	}
 
-	network, ok := config.Networks[cctx.String("network")]
-	if !ok {
-		return fmt.Errorf("unknown network '%s'", cctx.String("network"))
-	}
-
-	keyPair, err := resolveCredentials(network.NetworkID, cctx.String("account"))
-	if err != nil {
-		return fmt.Errorf("failed to load private key: %w", err)
-	}
-
-	rpc, err := client.NewClient(network.NodeURL)
-	if err != nil {
-		return fmt.Errorf("failed to create rpc client: %w", err)
-	}
-
-	log.Printf("near network: %s", rpc.NetworkAddr())
-
-	switch cctx.String("mode") {
-	case "view":
-		//rpc.ContractViewCallFunction(ctx context.Context, accountID string, methodName string, argsBase64 string, block block.BlockCharacteristic)
-		return fmt.Errorf("not implemented yet")
-	case "change":
-		// TODO: move code here
-	default:
-		return fmt.Errorf("either 'change' or 'view' is accepted, you supplied '%s'", cctx.String("mode"))
-	}
-
 	// Make a transaction
-	var args []byte = nil
-	if a := cctx.String("args"); cctx.IsSet("args") {
-		args = []byte(a)
-	}
-
 	res, err := rpc.TransactionSendAwait(
-		context.Background(),
+		cctx.Context,
 		cctx.String("account"),
 		cctx.String("target"),
 		[]action.Action{
