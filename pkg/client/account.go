@@ -8,10 +8,9 @@ import (
 	"github.com/eteu-technologies/near-api-go/pkg/types"
 )
 
-// TODO: decode response
 // https://docs.near.org/docs/api/rpc#view-account
-func (c *Client) AccountView(ctx context.Context, accountID types.AccountID, block block.BlockCharacteristic) (res jsonrpc.Response, err error) {
-	res, err = c.doRPC(ctx, nil, "query", block, map[string]interface{}{
+func (c *Client) AccountView(ctx context.Context, accountID types.AccountID, block block.BlockCharacteristic) (res AccountView, err error) {
+	_, err = c.doRPC(ctx, &res, "query", block, map[string]interface{}{
 		"request_type": "view_account",
 		"account_id":   accountID,
 	})

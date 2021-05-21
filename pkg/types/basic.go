@@ -13,6 +13,11 @@ type Nonce = uint64
 // implements JSON marshal/unmarshal
 type TimeNanos = Balance
 
-// Some more aliases for blocks...
+// BlockHeight is used for height of the block
 type BlockHeight = uint64
+
+// ShardID is used for a shard index, from 0 to NUM_SHARDS - 1.
 type ShardID = uint64
+
+// StorageUsage is used to count the amount of storage used by a contract.
+type StorageUsage = uint64
