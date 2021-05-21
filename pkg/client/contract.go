@@ -8,10 +8,9 @@ import (
 	"github.com/eteu-technologies/near-api-go/pkg/types"
 )
 
-// TODO: decode response
 // https://docs.near.org/docs/api/rpc#view-contract-state
-func (c *Client) ContractViewState(ctx context.Context, accountID types.AccountID, prefixBase64 string, block block.BlockCharacteristic) (res jsonrpc.Response, err error) {
-	res, err = c.doRPC(ctx, nil, "query", block, map[string]interface{}{
+func (c *Client) ContractViewState(ctx context.Context, accountID types.AccountID, prefixBase64 string, block block.BlockCharacteristic) (res ViewStateResult, err error) {
+	_, err = c.doRPC(ctx, &res, "query", block, map[string]interface{}{
 		"request_type":  "view_state",
 		"account_id":    accountID,
 		"prefix_base64": prefixBase64,
