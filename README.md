@@ -24,6 +24,7 @@ What this library doesn't have yet:
 ## Examples
 
 See [cmd/](cmd/) in this repo for more fully featured CLI examples.
+See [NEARKit](https://github.com/eteu-technologies/nearkit) for a project which makes use of this API.
 
 ### Query latest block on NEAR testnet
 ```go
