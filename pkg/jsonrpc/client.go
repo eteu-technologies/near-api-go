@@ -65,7 +65,7 @@ func (c *Client) CallRPC(ctx context.Context, method string, params interface{})
 func parseRPCBody(body io.ReadCloser) (res Response, err error) {
 	defer func() { _ = body.Close() }()
 	decoder := json.NewDecoder(body)
-	decoder.DisallowUnknownFields()
+	//decoder.DisallowUnknownFields()
 
 	if err = decoder.Decode(&res); err != nil {
 		return
