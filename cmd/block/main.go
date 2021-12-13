@@ -26,7 +26,7 @@ func main() {
 				EnvVars: []string{"NEAR_ENV"},
 			},
 			&cli.StringFlag{
-				Name: "block",
+				Name:  "block",
 				Usage: "Block hash",
 			},
 		},
