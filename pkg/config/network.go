@@ -20,6 +20,12 @@ func buildNetworkConfig(networkID string) NetworkInfo {
 	}
 }
 
+func buildArchivalNetworkConfig(networkID string) (ni NetworkInfo) {
+	ni = buildNetworkConfig(networkID)
+	ni.NodeURL = fmt.Sprintf("https://archival-rpc.%s.near.org", networkID)
+	return
+}
+
 var Networks = map[string]NetworkInfo{
 	"mainnet": buildNetworkConfig("mainnet"),
 	"testnet": buildNetworkConfig("testnet"),
@@ -28,4 +34,9 @@ var Networks = map[string]NetworkInfo{
 		NetworkID: "local",
 		NodeURL:   "http://127.0.0.1:3030",
 	},
+	// From https://docs.near.org/docs/api/rpc#setup:
+	// > Querying historical data (older than 5 epochs or ~2.5 days), you may get responses that the data is not available anymore.
+	// > In that case, archival RPC nodes will come to your rescue
+	"archival-mainnet": buildArchivalNetworkConfig("mainnet"),
+	"archival-testnet": buildArchivalNetworkConfig("testnet"),
 }
