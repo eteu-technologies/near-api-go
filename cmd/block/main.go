@@ -17,13 +17,17 @@ import (
 func main() {
 	app := &cli.App{
 		Name:  "block",
-		Usage: "View latest block info",
+		Usage: "View latest or specified block info",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:    "network",
 				Usage:   "NEAR network",
 				Value:   "testnet",
 				EnvVars: []string{"NEAR_ENV"},
+			},
+			&cli.StringFlag{
+				Name: "block",
+				Usage: "Block hash",
 			},
 		},
 		Action: entrypoint,
@@ -46,7 +50,12 @@ func entrypoint(cctx *cli.Context) (err error) {
 		return fmt.Errorf("failed to create rpc client: %w", err)
 	}
 
-	blockDetailsResp, err := rpc.BlockDetails(context.Background(), block.FinalityFinal())
+	characteristic := block.FinalityFinal()
+	if v := cctx.String("block"); v != "" {
+		characteristic = block.BlockHashRaw(v)
+	}
+
+	blockDetailsResp, err := rpc.BlockDetails(context.Background(), characteristic)
 	if err != nil {
 		return fmt.Errorf("failed to query latest block info: %w", err)
 	}
