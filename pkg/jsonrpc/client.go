@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"io"
 	"net/http"
 	"net/url"
 	"sync/atomic"
@@ -59,11 +59,20 @@ func (c *Client) CallRPC(ctx context.Context, method string, params interface{})
 		return
 	}
 
-	return parseRPCBody(response.Body)
+	return parseRPCBody(response)
 }
 
-func parseRPCBody(body io.ReadCloser) (res Response, err error) {
+func parseRPCBody(r *http.Response) (res Response, err error) {
+	//fmt.Printf("%#v\n", r)
+
+	body := r.Body
+	if body == nil {
+		err = errors.New("nil body")
+		return
+	}
 	defer func() { _ = body.Close() }()
+
+	// TODO: check for Content-Type header
 	decoder := json.NewDecoder(body)
 	decoder.DisallowUnknownFields()
 
