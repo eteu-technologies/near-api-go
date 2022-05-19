@@ -16,9 +16,9 @@ type SlashedValidator struct {
 
 // ValidatorStakeView is based on ValidatorStakeV1 struct in nearcore
 type ValidatorStakeView struct {
-	AccountID types.AccountID `json:"account_id"`
-	PublicKey key.PublicKey   `json:"public_key"`
-	Stake     types.Balance   `json:"stake"`
+	AccountID types.AccountID     `json:"account_id"`
+	PublicKey key.Base58PublicKey `json:"public_key"`
+	Stake     types.Balance       `json:"stake"`
 }
 
 type BlockView struct {

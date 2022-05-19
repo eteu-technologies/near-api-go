@@ -113,9 +113,9 @@ type ValidatorsResponse struct {
 
 type CurrentEpochValidatorInfo struct {
 	ValidatorInfo
-	PublicKey         key.PublicKey   `json:"public_key"`
-	Stake             types.Balance   `json:"stake"`
-	Shards            []types.ShardID `json:"shards"`
-	NumProducedBlocks types.NumBlocks `json:"num_produced_blocks"`
-	NumExpectedBlocks types.NumBlocks `json:"num_expected_blocks"`
+	PublicKey         key.Base58PublicKey `json:"public_key"`
+	Stake             types.Balance       `json:"stake"`
+	Shards            []types.ShardID     `json:"shards"`
+	NumProducedBlocks types.NumBlocks     `json:"num_produced_blocks"`
+	NumExpectedBlocks types.NumBlocks     `json:"num_expected_blocks"`
 }
