@@ -46,6 +46,10 @@ var (
 		"DeleteKey":      ordDeleteKey,
 		"DeleteAccount":  ordDeleteAccount,
 	}
+
+	simpleActions = map[string]bool{
+		"CreateAccount": true,
+	}
 )
 
 func (a *Action) PrepaidGas() types.Gas {
@@ -100,28 +104,46 @@ func (a Action) String() string {
 	return fmt.Sprintf("Action{%#v}", ul)
 }
 
-func (a *Action) UnmarshalJSON(b []byte) error {
+func (a *Action) UnmarshalJSON(b []byte) (err error) {
 	var obj map[string]json.RawMessage
-	if err := json.Unmarshal(b, &obj); err != nil {
-		return err
+
+	// actions can be either strings, or objects, so try deserializing into string first
+	var actionType string
+	if len(b) > 0 && b[0] == '"' {
+		if err = json.Unmarshal(b, &actionType); err != nil {
+			return
+		}
+
+		if _, ok := simpleActions[actionType]; !ok {
+			err = fmt.Errorf("Action '%s' had no body", actionType)
+			return
+		}
+
+		obj = map[string]json.RawMessage{
+			actionType: json.RawMessage(`{}`),
+		}
+	} else {
+		if err = json.Unmarshal(b, &obj); err != nil {
+			return
+		}
 	}
 
 	if l := len(obj); l > 1 {
-		return fmt.Errorf("action object contains invalid amount of keys (expected: 1, got: %d)", l)
+		err = fmt.Errorf("action object contains invalid amount of keys (expected: 1, got: %d)", l)
+		return
 	}
 
-	var firstKey string
 	for k := range obj {
-		firstKey = k
+		actionType = k
 		break
 	}
 
-	ord := ordMappings[firstKey]
+	ord := ordMappings[actionType]
 	*a = Action{Enum: borsh.Enum(ord)}
 	ul := a.UnderlyingValue()
 
-	if err := json.Unmarshal(obj[firstKey], ul); err != nil {
-		return err
+	if err = json.Unmarshal(obj[actionType], ul); err != nil {
+		return
 	}
 
 	return nil
@@ -139,7 +161,7 @@ func NewCreateAccount() Action {
 }
 
 type ActionDeployContract struct {
-	Code []byte
+	Code []byte `json:"code"`
 }
 
 func NewDeployContract(code []byte) Action {
@@ -152,10 +174,10 @@ func NewDeployContract(code []byte) Action {
 }
 
 type ActionFunctionCall struct {
-	MethodName string `json:"method_name"`
-	Args       []byte
-	Gas        types.Gas
-	Deposit    types.Balance
+	MethodName string        `json:"method_name"`
+	Args       []byte        `json:"args"`
+	Gas        types.Gas     `json:"gas"`
+	Deposit    types.Balance `json:"deposit"`
 }
 
 func (f ActionFunctionCall) String() string {
@@ -175,7 +197,7 @@ func NewFunctionCall(methodName string, args []byte, gas types.Gas, deposit type
 }
 
 type ActionTransfer struct {
-	Deposit types.Balance
+	Deposit types.Balance `json:"deposit"`
 }
 
 func (t ActionTransfer) String() string {
@@ -193,9 +215,9 @@ func NewTransfer(deposit types.Balance) Action {
 
 type ActionStake struct {
 	// Amount of tokens to stake.
-	Stake types.Balance
+	Stake types.Balance `json:"stake"`
 	// Validator key which will be used to sign transactions on behalf of singer_id
-	PublicKey key.PublicKey
+	PublicKey key.PublicKey `json:"public_key"`
 }
 
 func NewStake(stake types.Balance, publicKey key.PublicKey) Action {
@@ -209,11 +231,11 @@ func NewStake(stake types.Balance, publicKey key.PublicKey) Action {
 }
 
 type ActionAddKey struct {
-	PublicKey key.PublicKey
+	PublicKey key.PublicKey `json:"public_key"`
 	AccessKey struct {
-		Nonce      types.Nonce
-		Permission AccessKeyPermission
-	}
+		Nonce      types.Nonce         `json:"nonce"`
+		Permission AccessKeyPermission `json:"permission"`
+	} `json:"access_key"`
 }
 
 func NewAddKey(publicKey key.PublicKey, nonce types.Nonce, permission AccessKeyPermission) Action {
@@ -224,7 +246,7 @@ func NewAddKey(publicKey key.PublicKey, nonce types.Nonce, permission AccessKeyP
 }
 
 type ActionDeleteKey struct {
-	PublicKey key.PublicKey
+	PublicKey key.PublicKey `json:"public_key"`
 }
 
 func NewDeleteKey(publicKey key.PublicKey) Action {
@@ -237,7 +259,7 @@ func NewDeleteKey(publicKey key.PublicKey) Action {
 }
 
 type ActionDeleteAccount struct {
-	BeneficiaryID types.AccountID
+	BeneficiaryID types.AccountID `json:"beneficiary_id"`
 }
 
 func NewDeleteAccount(beneficiaryID types.AccountID) Action {
