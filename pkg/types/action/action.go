@@ -152,7 +152,7 @@ func NewDeployContract(code []byte) Action {
 }
 
 type ActionFunctionCall struct {
-	MethodName string
+	MethodName string `json:"method_name"`
 	Args       []byte
 	Gas        types.Gas
 	Deposit    types.Balance
