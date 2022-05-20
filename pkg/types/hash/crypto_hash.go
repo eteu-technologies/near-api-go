@@ -12,23 +12,15 @@ import (
 // Note that nearcore also defines MerkleHash as an alias, but it's omitted from this project.
 type CryptoHash [sha256.Size]byte
 
-func (c *CryptoHash) UnmarshalJSON(b []byte) error {
+func (c *CryptoHash) UnmarshalJSON(b []byte) (err error) {
 	var s string
-	if err := json.Unmarshal(b, &s); err != nil {
-		return err
+	if err = json.Unmarshal(b, &s); err != nil {
+		return
 	}
 
-	data, err := base58.Decode(string(s))
-	if err != nil {
-		return err
+	if *c, err = NewCryptoHashFromBase58(s); err != nil {
+		return
 	}
-
-	if l := len(data); l != sha256.Size {
-		return fmt.Errorf("sha256 digest len %d != 32", l)
-	}
-
-	*c = CryptoHash{}
-	copy(c[:], data)
 
 	return nil
 }
