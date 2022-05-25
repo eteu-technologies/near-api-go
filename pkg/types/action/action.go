@@ -231,11 +231,18 @@ func NewStake(stake types.Balance, publicKey key.PublicKey) Action {
 }
 
 type ActionAddKey struct {
-	PublicKey key.PublicKey `json:"public_key"`
-	AccessKey struct {
-		Nonce      types.Nonce         `json:"nonce"`
-		Permission AccessKeyPermission `json:"permission"`
-	} `json:"access_key"`
+	PublicKey key.PublicKey         `json:"public_key"`
+	AccessKey ActionAddKeyAccessKey `json:"access_key"`
+}
+
+type ActionAddKeyAccessKey struct {
+	Nonce      types.Nonce         `json:"nonce"`
+	Permission AccessKeyPermission `json:"permission"`
+}
+
+type jsonActionAddKey struct {
+	PublicKey key.Base58PublicKey   `json:"public_key"`
+	AccessKey ActionAddKeyAccessKey `json:"access_key"`
 }
 
 func NewAddKey(publicKey key.PublicKey, nonce types.Nonce, permission AccessKeyPermission) Action {
@@ -245,8 +252,35 @@ func NewAddKey(publicKey key.PublicKey, nonce types.Nonce, permission AccessKeyP
 	}
 }
 
+func (a ActionAddKey) MarshalJSON() (b []byte, err error) {
+	v := jsonActionAddKey{
+		PublicKey: a.PublicKey.ToBase58PublicKey(),
+		AccessKey: a.AccessKey,
+	}
+	b, err = json.Marshal(&v)
+	return
+}
+
+func (a *ActionAddKey) UnmarshalJSON(b []byte) (err error) {
+	var v jsonActionAddKey
+	if err = json.Unmarshal(b, &v); err != nil {
+		return
+	}
+
+	*a = ActionAddKey{
+		PublicKey: v.PublicKey.ToPublicKey(),
+		AccessKey: v.AccessKey,
+	}
+
+	return
+}
+
 type ActionDeleteKey struct {
 	PublicKey key.PublicKey `json:"public_key"`
+}
+
+type jsonActionDeleteKey struct {
+	PublicKey key.Base58PublicKey `json:"public_key"`
 }
 
 func NewDeleteKey(publicKey key.PublicKey) Action {
@@ -256,6 +290,27 @@ func NewDeleteKey(publicKey key.PublicKey) Action {
 			PublicKey: publicKey,
 		},
 	}
+}
+
+func (a ActionDeleteKey) MarshalJSON() (b []byte, err error) {
+	v := jsonActionDeleteKey{
+		PublicKey: a.PublicKey.ToBase58PublicKey(),
+	}
+	b, err = json.Marshal(&v)
+	return
+}
+
+func (a *ActionDeleteKey) UnmarshalJSON(b []byte) (err error) {
+	var v jsonActionDeleteKey
+	if err = json.Unmarshal(b, &v); err != nil {
+		return
+	}
+
+	*a = ActionDeleteKey{
+		PublicKey: v.PublicKey.ToPublicKey(),
+	}
+
+	return
 }
 
 type ActionDeleteAccount struct {
