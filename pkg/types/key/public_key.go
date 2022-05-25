@@ -30,6 +30,10 @@ func (p PublicKey) MarshalJSON() ([]byte, error) {
 	return json.Marshal(base58.Encode(p[:]))
 }
 
+func (p PublicKey) String() string {
+	return fmt.Sprintf("%s:%s", keyTypes[p.TypeByte()], base58.Encode(p.Value()))
+}
+
 func (p *PublicKey) UnmarshalJSON(b []byte) error {
 	var s string
 	if err := json.Unmarshal(b, &s); err != nil {
