@@ -2,6 +2,8 @@ package client
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"github.com/eteu-technologies/near-api-go/pkg/client/block"
 	"github.com/eteu-technologies/near-api-go/pkg/jsonrpc"
@@ -16,6 +18,10 @@ func (c *Client) AccessKeyView(ctx context.Context, accountID types.AccountID, p
 		"account_id":   accountID,
 		"public_key":   publicKey,
 	})
+
+	if resp.Error != nil {
+		err = fmt.Errorf("RPC returned an error: %w", errors.New(*resp.Error))
+	}
 
 	return
 }

@@ -87,10 +87,15 @@ func (a *AccessKeyView) UnmarshalJSON(data []byte) (err error) {
 	var ak AccessKey
 
 	if err = json.Unmarshal(data, &qr); err != nil {
+		err = fmt.Errorf("unable to parse QueryResponse: %w", err)
 		return
 	}
-	if err = json.Unmarshal(data, &ak); err != nil {
-		return
+
+	if qr.Error == nil {
+		if err = json.Unmarshal(data, &ak); err != nil {
+			err = fmt.Errorf("unable to parse AccessKey: %w", err)
+			return
+		}
 	}
 
 	*a = AccessKeyView{
