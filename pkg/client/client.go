@@ -21,6 +21,15 @@ func NewClient(networkAddr string) (client Client, err error) {
 	return
 }
 
+func NewClientWithOpts(opts ...jsonrpc.ClientOptFn) (client Client, err error) {
+	client.RPCClient, err = jsonrpc.NewClientWithOpts(opts...)
+	if err != nil {
+		return
+	}
+
+	return
+}
+
 func (c *Client) NetworkAddr() string {
 	return c.RPCClient.URL
 }
