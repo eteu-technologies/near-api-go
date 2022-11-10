@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"net/url"
 	"sync/atomic"
 )
 
@@ -21,13 +20,30 @@ type Client struct {
 }
 
 func NewClient(networkAddr string) (client Client, err error) {
-	_, err = url.Parse(networkAddr)
-	if err != nil {
+	return NewClientWithOpts(
+		WithNetworkAddr(networkAddr),
+		WithHTTPClient(new(http.Client)),
+	)
+}
+
+func NewClientWithOpts(opts ...ClientOptFn) (client Client, err error) {
+	var co ClientOpts
+	for idx, fn := range opts {
+		if err = fn(&co); err != nil {
+			err = fmt.Errorf("client option at index %d failed: %w", idx, err)
+			return
+		}
+	}
+
+	if client.client = co.HTTPClient; client.client == nil {
+		client.client = http.DefaultClient
+	}
+
+	if client.URL = co.NetworkAddr; client.URL == "" {
+		err = fmt.Errorf("network address is not set")
 		return
 	}
 
-	client.client = new(http.Client)
-	client.URL = networkAddr
 	atomic.StoreUint64(&client.nextReqId, 0)
 
 	return
