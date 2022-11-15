@@ -7,11 +7,13 @@ import (
 	"math/big"
 
 	uint128 "github.com/eteu-technologies/golang-uint128"
+	"github.com/shopspring/decimal"
 )
 
 var (
-	tenPower24 = uint128.From64(uint64(math.Pow10(12))).Mul64(uint64(math.Pow10(12)))
-	zeroNEAR   = Balance(uint128.From64(0))
+	tenPower24     = uint128.From64(uint64(math.Pow10(12))).Mul64(uint64(math.Pow10(12)))
+	zeroNEAR       = Balance(uint128.From64(0))
+	dTenPower24, _ = decimal.NewFromString(tenPower24.String())
 )
 
 // Balance holds amount of yoctoNEAR
@@ -94,5 +96,30 @@ func BalanceFromString(s string) (bal Balance, err error) {
 	}
 
 	bal = Balance(uint128.FromBig(scaleToYocto(bigf)))
+	return
+}
+
+// --------------------------------------------------------------------
+
+func scaleToYoctoNew(amount decimal.Decimal) (r *big.Int) {
+	// Multiply base using the supplied float
+	amount = amount.Mul(dTenPower24)
+
+	// Convert it to big.Int
+	return amount.BigInt()
+}
+
+func BalanceFromFloatNew(f float64) (bal Balance) {
+	bal = Balance(uint128.FromBig(scaleToYoctoNew(decimal.NewFromFloat(f))))
+	return
+}
+
+func BalanceFromStringNew(s string) (bal Balance, err error) {
+	amount, err := decimal.NewFromString(s)
+	if err != nil {
+		return
+	}
+
+	bal = Balance(uint128.FromBig(scaleToYoctoNew(amount)))
 	return
 }
