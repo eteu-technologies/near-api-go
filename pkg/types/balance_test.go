@@ -17,6 +17,14 @@ func TestNEARToYocto(t *testing.T) {
 	if NEAR != orig {
 		t.Errorf("expected: %d, got: %d", NEAR, orig)
 	}
+
+	NEAR = 0
+	yoctoValue = NEARToYocto(NEAR)
+	orig = YoctoToNEAR(yoctoValue)
+
+	if NEAR != orig {
+		t.Errorf("expected: %d, got: %d", NEAR, orig)
+	}
 }
 
 func TestNEARToYocto_Fuzz(t *testing.T) {
@@ -30,6 +38,49 @@ func TestNEARToYocto_Fuzz(t *testing.T) {
 		newValue := YoctoToNEAR(NEARToYocto(uint64(value)))
 		if uint64(value) != newValue {
 			t.Errorf("expected: %d, got: %d", value, newValue)
+		}
+	}
+}
+
+// Tests for Balance UnmarshalJSON
+
+var valuesForTestBalanceUnmarshalJSON = map[string]string{
+	`"0"`:            "0",
+	`"1"`:            "1",
+	`"100000000000"`: "100000000000",
+	`"340282366920938000000000000000000000000"`: "340282366920938000000000000000000000000",
+}
+
+func TestBalanceUnmarshalJSON(t *testing.T) {
+	for key, value := range valuesForTestBalanceUnmarshalJSON {
+		var bal Balance
+		err := bal.UnmarshalJSON([]byte(key))
+		if err != nil {
+			t.Errorf("Key: %s, expected: %s, got: %s", key, value, err)
+		}
+
+		balString := bal.String()
+		if value != balString {
+			t.Errorf("Key: %s, expected: %s, got: %s", key, value, balString)
+		}
+	}
+}
+
+var errorsForTestBalanceUnmarshalJSON = map[string]string{
+	`"340.2.2"`: "unable to parse '340.2.2'",
+	`"340.2"`:   "unable to parse '340.2'",
+	`"abcd"`:    "unable to parse 'abcd'",
+	"abcd":      "invalid character 'a' looking for beginning of value",
+}
+
+func TestBalanceUnmarshalJSONError(t *testing.T) {
+	var bal Balance
+	var err error
+
+	for v, e := range errorsForTestBalanceUnmarshalJSON {
+		err = bal.UnmarshalJSON([]byte(v))
+		if err == nil || err.Error() != e {
+			t.Errorf("Key: %s, expected: %s, got: %s", v, e, err)
 		}
 	}
 }
@@ -54,17 +105,6 @@ var valuesForTestBalanceFromFloat = map[float64]string{
 func TestBalanceFromFloat(t *testing.T) {
 	for key, value := range valuesForTestBalanceFromFloat {
 		bal := BalanceFromFloat(key)
-
-		balString := bal.String()
-		if value != balString {
-			t.Errorf("Key: %.15f, expected: %s, got: %s", key, value, balString)
-		}
-	}
-}
-
-func TestBalanceFromFloatNew(t *testing.T) {
-	for key, value := range valuesForTestBalanceFromFloat {
-		bal := BalanceFromFloatNew(key)
 
 		balString := bal.String()
 		if value != balString {
@@ -104,16 +144,9 @@ func TestBalanceFromString(t *testing.T) {
 	}
 }
 
-func TestBalanceFromStringNew(t *testing.T) {
-	for key, value := range valuesForTestBalanceFromString {
-		bal, err := BalanceFromStringNew(key)
-		if err != nil {
-			t.Errorf("Key: %s, expected: %s, got: %s", key, value, err)
-		}
-
-		balString := bal.String()
-		if value != balString {
-			t.Errorf("Key: %s, expected: %s, got: %s", key, value, balString)
-		}
+func TestBalanceFromStringError(t *testing.T) {
+	_, err := BalanceFromString("340.2.2")
+	if err == nil {
+		t.Errorf("expected error, got: nil")
 	}
 }

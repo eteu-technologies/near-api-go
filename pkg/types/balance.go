@@ -67,41 +67,7 @@ func YoctoToNEAR(yocto Balance) uint64 {
 	return div.Lo
 }
 
-func scaleToYocto(f *big.Float) (r *big.Int) {
-	// Convert reference 1 NEAR to big.Float
-	base := new(big.Float).SetPrec(128).SetInt(uint128.Uint128(NEARToYocto(1)).Big())
-
-	// Multiply base using the supplied float
-	// XXX: small precision issues here will haunt me forever
-	bigf2 := new(big.Float).SetPrec(128).SetMode(big.ToZero).Mul(base, f)
-
-	// Convert it to big.Int
-	r, _ = bigf2.Int(nil)
-	return
-}
-
-// TODO
-func BalanceFromFloat(f float64) (bal Balance) {
-	bigf := big.NewFloat(f)
-	bal = Balance(uint128.FromBig(scaleToYocto(bigf)))
-	return
-}
-
-// TODO
-func BalanceFromString(s string) (bal Balance, err error) {
-	var bigf *big.Float
-	bigf, _, err = big.ParseFloat(s, 10, 128, big.ToZero)
-	if err != nil {
-		return
-	}
-
-	bal = Balance(uint128.FromBig(scaleToYocto(bigf)))
-	return
-}
-
-// --------------------------------------------------------------------
-
-func scaleToYoctoNew(amount decimal.Decimal) (r *big.Int) {
+func scaleToYocto(amount decimal.Decimal) (r *big.Int) {
 	// Multiply base using the supplied float
 	amount = amount.Mul(dTenPower24)
 
@@ -109,17 +75,17 @@ func scaleToYoctoNew(amount decimal.Decimal) (r *big.Int) {
 	return amount.BigInt()
 }
 
-func BalanceFromFloatNew(f float64) (bal Balance) {
-	bal = Balance(uint128.FromBig(scaleToYoctoNew(decimal.NewFromFloat(f))))
+func BalanceFromFloat(f float64) (bal Balance) {
+	bal = Balance(uint128.FromBig(scaleToYocto(decimal.NewFromFloat(f))))
 	return
 }
 
-func BalanceFromStringNew(s string) (bal Balance, err error) {
+func BalanceFromString(s string) (bal Balance, err error) {
 	amount, err := decimal.NewFromString(s)
 	if err != nil {
 		return
 	}
 
-	bal = Balance(uint128.FromBig(scaleToYoctoNew(amount)))
+	bal = Balance(uint128.FromBig(scaleToYocto(amount)))
 	return
 }
