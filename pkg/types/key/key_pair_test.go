@@ -81,3 +81,73 @@ func TestSignAndVerifyED25519(t *testing.T) {
 }
 
 // ------------------------------------------------
+// Tests for secp256k1
+
+// TestGenerateKeyPair tests the generation of a key pair.
+func TestGenerateKeyPairSECP256k1(t *testing.T) {
+	keyPair, err := GenerateKeyPair(KeyTypeSECP256K1, rand.Reader)
+	if err != nil {
+		t.Errorf("failed to generate key pair: %s", err)
+	}
+
+	if keyPair.Type != KeyTypeSECP256K1 {
+		t.Errorf("invalid key type: %s", keyPair.Type)
+	}
+
+	if keyPair.PublicKey.Value == "" {
+		t.Errorf("public key is nil")
+	}
+
+	if keyPair.SECP256k1PrivateKey == nil {
+		t.Errorf("private key is nil")
+	}
+}
+
+// TestNewBase58KeyPair tests the creation of a key pair from a base58 encoded string.
+func TestNewBase58KeyPairSECP256k1(t *testing.T) {
+	raw := "secp256k1:3aq6RcztvhMw8PMRbUgyechLS9rpNETDAHFqip3Zb4cb"     // Private key in base58
+	expectedPubliKey := "23URfhHiWFYsFArc5nLrmj8qDMXXrgF2iU39Dod3cXpBu" // Public key
+
+	keyPair, err := NewBase58KeyPair(raw)
+	if err != nil {
+		t.Errorf("failed to create key pair: %s", err)
+	}
+
+	if keyPair.Type != KeyTypeSECP256K1 {
+		t.Errorf("invalid key type: %s", keyPair.Type)
+	}
+
+	if keyPair.PublicKey.Value != expectedPubliKey {
+		t.Errorf("public key is not valid: %s", keyPair.PublicKey.Value)
+	}
+
+	if keyPair.SECP256k1PrivateKey == nil {
+		t.Errorf("private key is nil")
+	}
+
+	if keyPair.PrivateEncoded() != raw {
+		t.Errorf("private key is not valid: %s", keyPair.PrivateEncoded())
+	}
+}
+
+// TestSignAndVerify tests the signing and verification of a message.
+func TestSignAndVerifySECP256k1(t *testing.T) {
+	keyPair, err := GenerateKeyPair(KeyTypeSECP256K1, rand.Reader)
+	if err != nil {
+		t.Errorf("failed to generate key pair: %s", err)
+	}
+
+	message := []byte("Hello World")
+	signature := keyPair.Sign(message)
+
+	ok, err := keyPair.PublicKey.pk.Verify(message, signature)
+	if err != nil {
+		t.Errorf("failed to verify signature: %s", err)
+	}
+
+	if !ok {
+		t.Errorf("signature is not valid")
+	}
+}
+
+// ------------------------------------------------
