@@ -98,7 +98,7 @@ func TestGenerateKeyPairSECP256k1(t *testing.T) {
 		t.Errorf("public key is nil")
 	}
 
-	if keyPair.SECP256k1PrivateKey == nil {
+	if keyPair.PrivateKey == nil {
 		t.Errorf("private key is nil")
 	}
 }
@@ -121,7 +121,7 @@ func TestNewBase58KeyPairSECP256k1(t *testing.T) {
 		t.Errorf("public key is not valid: %s", keyPair.PublicKey.Value)
 	}
 
-	if keyPair.SECP256k1PrivateKey == nil {
+	if keyPair.PrivateKey == nil {
 		t.Errorf("private key is nil")
 	}
 

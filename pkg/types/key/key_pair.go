@@ -18,9 +18,11 @@ type KeyPair struct {
 	Type PublicKeyType
 
 	PublicKey  Base58PublicKey
-	PrivateKey ed25519.PrivateKey
+	PrivateKey interface{}
+}
 
-	SECP256k1PrivateKey *secp256k1.PrivateKey
+type PrivateKeyType interface {
+	ed25519.PrivateKey | secp256k1.PrivateKey
 }
 
 func GenerateKeyPair(keyType PublicKeyType, rand io.Reader) (kp KeyPair, err error) {
@@ -45,7 +47,7 @@ func GenerateKeyPair(keyType PublicKeyType, rand io.Reader) (kp KeyPair, err err
 			return
 		}
 
-		kp = CreateKeyPair(keyType, rawPub.ToBase58PublicKey(), priv, nil)
+		kp = CreateKeyPair(keyType, rawPub.ToBase58PublicKey(), priv)
 	case KeyTypeSECP256K1:
 		var ephemeralPrivKey *secp256k1.PrivateKey
 		ephemeralPrivKey, err = secp256k1.GeneratePrivateKey()
@@ -58,18 +60,17 @@ func GenerateKeyPair(keyType PublicKeyType, rand io.Reader) (kp KeyPair, err err
 			return
 		}
 
-		kp = CreateKeyPair(keyType, rawPub.ToBase58PublicKey(), nil, ephemeralPrivKey)
+		kp = CreateKeyPair(keyType, rawPub.ToBase58PublicKey(), *ephemeralPrivKey)
 	}
 
 	return
 }
 
-func CreateKeyPair(keyType PublicKeyType, pub Base58PublicKey, priv ed25519.PrivateKey, ephemeralPrivKey *secp256k1.PrivateKey) KeyPair {
+func CreateKeyPair[P PrivateKeyType](keyType PublicKeyType, pub Base58PublicKey, priv P) KeyPair {
 	return KeyPair{
-		Type:                keyType,
-		PublicKey:           pub,
-		PrivateKey:          priv,
-		SECP256k1PrivateKey: ephemeralPrivKey,
+		Type:       keyType,
+		PublicKey:  pub,
+		PrivateKey: priv,
 	}
 }
 
@@ -110,7 +111,7 @@ func NewBase58KeyPair(raw string) (kp KeyPair, err error) {
 			return
 		}
 
-		kp = CreateKeyPair(theKeyType, pubKey.ToBase58PublicKey(), privKey, nil)
+		kp = CreateKeyPair(theKeyType, pubKey.ToBase58PublicKey(), privKey)
 	case RawKeyTypeSECP256K1:
 		decoded, err = base58.Decode(encodedKey)
 		if err != nil {
@@ -129,7 +130,7 @@ func NewBase58KeyPair(raw string) (kp KeyPair, err error) {
 			return
 		}
 
-		kp = CreateKeyPair(theKeyType, pubKey.ToBase58PublicKey(), nil, privateKey)
+		kp = CreateKeyPair(theKeyType, pubKey.ToBase58PublicKey(), *privateKey)
 	}
 
 	return
@@ -140,10 +141,11 @@ func (kp *KeyPair) Sign(data []byte) (sig signature.Signature) {
 
 	switch sigType {
 	case RawKeyTypeED25519:
-		sig = signature.NewSignatureED25519(ed25519.Sign(kp.PrivateKey, data))
+		privateKey := kp.PrivateKey.(ed25519.PrivateKey)
+		sig = signature.NewSignatureED25519(ed25519.Sign(privateKey, data))
 	case RawKeyTypeSECP256K1:
-		sig = signature.NewSignatureSECP256K1(ecdsa.Sign(kp.SECP256k1PrivateKey, data).Serialize())
-
+		privateKey := kp.PrivateKey.(secp256k1.PrivateKey)
+		sig = signature.NewSignatureSECP256K1(ecdsa.Sign(&privateKey, data).Serialize())
 	}
 	return
 }
@@ -153,9 +155,11 @@ func (kp *KeyPair) PrivateEncoded() string {
 
 	switch kp.Type {
 	case KeyTypeED25519:
-		encoded = fmt.Sprintf("%s:%s", kp.Type, base58.Encode(kp.PrivateKey))
+		privateKey := kp.PrivateKey.(ed25519.PrivateKey)
+		encoded = fmt.Sprintf("%s:%s", kp.Type, base58.Encode(privateKey))
 	case KeyTypeSECP256K1:
-		encoded = fmt.Sprintf("%s:%s", kp.Type, base58.Encode(kp.SECP256k1PrivateKey.Serialize()))
+		privateKey := kp.PrivateKey.(secp256k1.PrivateKey)
+		encoded = fmt.Sprintf("%s:%s", kp.Type, base58.Encode(privateKey.Serialize()))
 	}
 
 	return encoded
