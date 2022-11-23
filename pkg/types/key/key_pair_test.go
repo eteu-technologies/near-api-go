@@ -3,6 +3,7 @@ package key
 import (
 	"crypto/ed25519"
 	"crypto/rand"
+	"encoding/json"
 	"testing"
 )
 
@@ -80,6 +81,37 @@ func TestSignAndVerifyED25519(t *testing.T) {
 	}
 }
 
+// TestUnmarshalJSONED25519 tests the unmarshalling of a key pair from a JSON string.
+func TestUnmarshalJSONED25519(t *testing.T) {
+	keyPair, err := GenerateKeyPair(KeyTypeED25519, rand.Reader)
+	if err != nil {
+		t.Errorf("failed to generate key pair: %s", err)
+	}
+
+	keyPairJSON, err := json.Marshal(keyPair.PrivateEncoded())
+	if err != nil {
+		t.Errorf("failed to marshal key pair: %s", err)
+	}
+
+	var keyPair2 KeyPair
+	err = keyPair2.UnmarshalJSON(keyPairJSON)
+	if err != nil {
+		t.Errorf("failed to unmarshal key pair: %s", err)
+	}
+
+	if keyPair2.Type != KeyTypeED25519 {
+		t.Errorf("invalid key type: %s", keyPair2.Type)
+	}
+
+	if keyPair2.PublicKey.Value != keyPair.PublicKey.Value {
+		t.Errorf("public key is not valid: %s", keyPair2.PublicKey.Value)
+	}
+
+	if keyPair2.PrivateEncoded() != keyPair.PrivateEncoded() {
+		t.Errorf("private key is not valid: %s", keyPair2.PrivateEncoded())
+	}
+}
+
 // ------------------------------------------------
 // Tests for secp256k1
 
@@ -147,6 +179,37 @@ func TestSignAndVerifySECP256k1(t *testing.T) {
 
 	if !ok {
 		t.Errorf("signature is not valid")
+	}
+}
+
+// TestUnmarshalJSONECP256k1 tests the unmarshalling of a key pair from a JSON string.
+func TestUnmarshalJSONECP256k1(t *testing.T) {
+	keyPair, err := GenerateKeyPair(KeyTypeSECP256K1, rand.Reader)
+	if err != nil {
+		t.Errorf("failed to generate key pair: %s", err)
+	}
+
+	keyPairJSON, err := json.Marshal(keyPair.PrivateEncoded())
+	if err != nil {
+		t.Errorf("failed to marshal key pair: %s", err)
+	}
+
+	var keyPair2 KeyPair
+	err = keyPair2.UnmarshalJSON(keyPairJSON)
+	if err != nil {
+		t.Errorf("failed to unmarshal key pair: %s", err)
+	}
+
+	if keyPair2.Type != KeyTypeSECP256K1 {
+		t.Errorf("invalid key type: %s", keyPair2.Type)
+	}
+
+	if keyPair2.PublicKey.Value != keyPair.PublicKey.Value {
+		t.Errorf("public key is not valid: %s", keyPair2.PublicKey.Value)
+	}
+
+	if keyPair2.PrivateEncoded() != keyPair.PrivateEncoded() {
+		t.Errorf("private key is not valid: %s", keyPair2.PrivateEncoded())
 	}
 }
 
