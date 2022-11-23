@@ -62,7 +62,5 @@ func (pk *Base58PublicKey) UnmarshalJSON(b []byte) (err error) {
 
 // Copies Base58PublicKey to PublicKey
 func (pk *Base58PublicKey) ToPublicKey() PublicKey {
-	var buf PublicKey
-	copy(buf[:], pk.pk[:])
-	return buf
+	return pk.pk
 }
