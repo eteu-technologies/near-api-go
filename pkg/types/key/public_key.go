@@ -6,13 +6,14 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/decred/dcrd/dcrec/secp256k1/v4"
+	"github.com/decred/dcrd/dcrec/secp256k1/v4/ecdsa"
 	"github.com/mr-tron/base58"
 
 	"github.com/eteu-technologies/near-api-go/pkg/types/signature"
 )
 
-// TODO: SECP256K1
-type PublicKey [33]byte
+type PublicKey []byte
 
 func (p PublicKey) Hash() string {
 	return hex.EncodeToString(p[1:])
@@ -45,8 +46,7 @@ func (p *PublicKey) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	*p = PublicKey{}
-	copy(p[:], dec)
+	*p = dec
 	return nil
 }
 
@@ -60,8 +60,19 @@ func (p *PublicKey) Verify(data []byte, signature signature.Signature) (ok bool,
 	case RawKeyTypeED25519:
 		ok = ed25519.Verify(ed25519.PublicKey(p.Value()), data, signature.Value())
 	case RawKeyTypeSECP256K1:
-		// TODO!
-		return false, fmt.Errorf("SECP256K1 is not supported yet")
+		var pubKey *secp256k1.PublicKey
+		pubKey, err = secp256k1.ParsePubKey(p.Value())
+		if err != nil {
+			return
+		}
+
+		var sign *ecdsa.Signature
+		sign, err = ecdsa.ParseDERSignature(signature.Value())
+		if err != nil {
+			return
+		}
+
+		ok = sign.Verify(data, pubKey)
 	}
 
 	return
@@ -69,8 +80,8 @@ func (p *PublicKey) Verify(data []byte, signature signature.Signature) (ok bool,
 
 func (p *PublicKey) ToBase58PublicKey() Base58PublicKey {
 	return Base58PublicKey{
-		Type:  keyTypes[p[0]],
-		Value: base58.Encode(p[1:]),
+		Type:  keyTypes[p.TypeByte()],
+		Value: base58.Encode(p.Value()),
 		pk:    *p,
 	}
 }
@@ -83,11 +94,14 @@ func PublicKeyFromBytes(b []byte) (pk PublicKey, err error) {
 		if l != ed25519.PublicKeySize {
 			return pk, ErrInvalidPublicKey
 		}
-		copy(pk[:], b)
+		pk = b
 		return
 	case RawKeyTypeSECP256K1:
-		// TODO!
-		return pk, fmt.Errorf("SECP256K1 is not supported yet")
+		if l != secp256k1.PubKeyBytesLenCompressed {
+			return pk, ErrInvalidPublicKey
+		}
+		pk = b
+		return
 	}
 
 	return pk, ErrInvalidKeyType
@@ -100,12 +114,19 @@ func WrapRawKey(keyType PublicKeyType, key []byte) (pk PublicKey, err error) {
 			return pk, ErrInvalidPublicKey
 		}
 
+		pk = make([]byte, ed25519.PublicKeySize+1)
 		pk[0] = RawKeyTypeED25519
 		copy(pk[1:], key[0:ed25519.PublicKeySize])
 		return
 	case KeyTypeSECP256K1:
-		// TODO!
-		return pk, fmt.Errorf("SECP256K1 is not supported yet")
+		if len(key) != secp256k1.PubKeyBytesLenCompressed {
+			return pk, ErrInvalidPublicKey
+		}
+
+		pk = make([]byte, secp256k1.PubKeyBytesLenCompressed+1)
+		pk[0] = RawKeyTypeSECP256K1
+		copy(pk[1:], key[0:secp256k1.PubKeyBytesLenCompressed])
+		return
 	}
 
 	return pk, ErrInvalidKeyType

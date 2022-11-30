@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/davecgh/go-spew v1.1.1
+	github.com/decred/dcrd/dcrec/secp256k1/v4 v4.1.0
 	github.com/eteu-technologies/borsh-go v0.3.2
 	github.com/eteu-technologies/golang-uint128 v1.1.2-eteu
 	github.com/google/gofuzz v1.2.0
